@@ -47,6 +47,9 @@ def add():
     telefone = request.form.get("telefone")
     departamento = request.form.get("departamento")
     sexo = request.form.get("sexo")
+    
+    # Captura se o checkbox de liberar acesso foi marcado
+    liberar_acesso = True if request.form.get("liberar_acesso") == "on" else False
 
     cpf_limpo = re.sub(r"\D", "", raw_cpf) if raw_cpf else None
 
@@ -77,8 +80,8 @@ def add():
         db.session.add(new_member)
         db.session.flush() # Garante que o ID do membro seja gerado para o relacionamento
 
-        # 2. Cria automaticamente o Usuário de acesso correspondente para o painel comum
-        if cpf_limpo and not User.query.filter_by(cpf=cpf_limpo).first():
+        # 2. Cria o Usuário de acesso APENAS se a opção "liberar_acesso" estiver marcada
+        if liberar_acesso and cpf_limpo and not User.query.filter_by(cpf=cpf_limpo).first():
             email_padrao = f"{cpf_limpo}@church.com"
             new_user = User(
                 nome=nome,
@@ -94,10 +97,15 @@ def add():
             db.session.add(new_user)
 
         db.session.commit()
-        flash("Membro cadastrado com sucesso e acesso de usuário gerado!", "success")
+        
+        mensagem = "Membro cadastrado com sucesso!"
+        if liberar_acesso:
+            mensagem += " Acesso de usuário gerado com o CPF."
+        flash(mensagem, "success")
+        
     except Exception as e:
         db.session.rollback()
-        flash(f"Erro ao cadastrar membro e usuário: {e}", "danger")
+        flash(f"Erro ao cadastrar membro: {e}", "danger")
 
     return redirect(url_for("members.index"))
 

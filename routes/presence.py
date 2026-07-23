@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from models import db
 from models.member import Member
 from models.attendance import Event, Attendance
@@ -15,6 +15,12 @@ def get_next_sunday():
 @presence_bp.route("/presence", methods=["GET"])
 @login_required
 def index():
+    # Se o usuário for comum (USER), ele não pode ver a listagem geral de presenças/eventos do painel administrativo
+    if getattr(current_user, 'tipo', 'USER') != 'MASTER':
+        # Aqui você pode direcionar para uma rota específica do membro comum ou exibir apenas os dados dele
+        flash("Acesso restrito à área administrativa.", "warning")
+        return redirect(url_for("auth.login")) # Ou a rota do painel do membro
+
     events = Event.query.order_by(Event.data.desc(), Event.id.desc()).all()
     selected_event_id = request.args.get("event_id", type=int)
     departamento_selecionado = request.args.get("departamento", "")
@@ -51,6 +57,10 @@ def index():
 @presence_bp.route("/events/quick_add_ebd", methods=["POST"])
 @login_required
 def quick_add_ebd():
+    if getattr(current_user, 'tipo', 'USER') != 'MASTER':
+        flash("Acesso negado.", "danger")
+        return redirect(url_for("presence.index"))
+
     next_sunday = get_next_sunday()
     nome_evento = "Escola Bíblica Dominical (EBD)"
     
@@ -69,6 +79,10 @@ def quick_add_ebd():
 @presence_bp.route("/presence/toggle/<int:event_id>/<int:member_id>", methods=["POST"])
 @login_required
 def toggle_presence(event_id, member_id):
+    if getattr(current_user, 'tipo', 'USER') != 'MASTER':
+        flash("Acesso negado.", "danger")
+        return redirect(url_for("presence.index"))
+
     # Captura o departamento atual da URL para repassar no redirect e não resetar o filtro
     departamento_selecionado = request.args.get("departamento", "")
     
