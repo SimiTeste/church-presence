@@ -13,19 +13,19 @@ def login():
         raw_cpf = request.form.get('cpf', '')
         senha = request.form.get('senha', '')
         
-        # Limpa o CPF digitado para buscar corretamente no banco
+        # Limpa o CPF digitado
         cpf_limpo = re.sub(r'\D', '', raw_cpf)
         
         user = User.query.filter_by(cpf=cpf_limpo).first()
 
-        if user and user.check_password(senha):
+        # Validação flexível: aceita a senha correta OU se a senha digitada for igual ao CPF limpo
+        if user and (user.check_password(senha) or senha == cpf_limpo):
             if not getattr(user, 'ativo', True):
                 flash('Sua conta está desativada. Procure o Administrador.', 'danger')
                 return redirect(url_for('auth.login'))
 
             login_user(user)
             
-            # Redirecionamento dinâmico baseado no tipo de usuário
             if getattr(user, 'tipo', 'USER') == 'MASTER':
                 return redirect(url_for('dashboard.index'))
             else:
@@ -49,15 +49,11 @@ def register():
         email = request.form.get('email')
         tipo = request.form.get('tipo', 'USER')
 
-        # Limpa o CPF para salvar padronizado
         cpf_limpo = re.sub(r'\D', '', raw_cpf)
 
         if User.query.filter_by(cpf=cpf_limpo).first():
             flash('CPF já cadastrado no sistema!', 'warning')
             return redirect(url_for('auth.register'))
-
-        # A senha inicial será o CPF completo limpo (para alinhar com o cadastro de membros)
-        senha_inicial = cpf_limpo
 
         novo_usuario = User(
             nome=nome,
@@ -66,7 +62,7 @@ def register():
             tipo=tipo,
             ativo=True
         )
-        novo_usuario.set_password(senha_inicial)
+        novo_usuario.set_password(cpf_limpo)
 
         db.session.add(novo_usuario)
         db.session.commit()
