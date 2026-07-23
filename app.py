@@ -1,3 +1,4 @@
+import os
 from flask import Flask, redirect, url_for
 from config import Config
 from models import db
@@ -15,6 +16,13 @@ from routes.reports import reports_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Ajuste crítico para o Render: corrige a URL do PostgreSQL se necessário
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 db.init_app(app)
 migrate = Migrate(app, db)
