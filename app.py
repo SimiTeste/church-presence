@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from config import Config
 from models import db
 from models.user import User
@@ -32,6 +32,11 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(members_bp)
 app.register_blueprint(presence_bp)
 app.register_blueprint(reports_bp)
+
+# Rota raiz para evitar erro 404 ao acessar o link principal
+@app.route('/')
+def index():
+    return redirect(url_for('auth.login'))
 
 # Criacao de tabelas e usuario Master inicial
 with app.app_context():
