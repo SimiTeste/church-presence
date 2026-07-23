@@ -76,11 +76,20 @@ def add():
         db.session.add(new_member)
         db.session.flush()
 
-        # 2. Cria o Usuário de acesso se solicitado e houver CPF
+        # 2. Cria ou atualiza o Usuário de acesso se solicitado e houver CPF
         if liberar_acesso and cpf_limpo:
-            user_existente = User.query.filter_by(cpf=cpf_limpo).first()
-            if not user_existente:
-                email_padrao = f"{cpf_limpo}@church.com"
+            email_padrao = f"{cpf_limpo}@church.com"
+            
+            # Busca por CPF ou por E-mail para evitar conflito de duplicidade no banco
+            user_existente = User.query.filter((User.cpf == cpf_limpo) | (User.email == email_padrao)).first()
+            
+            if user_existente:
+                user_existente.nome = nome
+                user_existente.cpf = cpf_limpo
+                user_existente.email = email_padrao
+                user_existente.ativo = True
+                user_existente.set_password(cpf_limpo)
+            else:
                 new_user = User(
                     nome=nome,
                     cpf=cpf_limpo,
@@ -103,6 +112,7 @@ def add():
         
     except Exception as e:
         db.session.rollback()
+        print(f">>> ERRO CRITICO AO CADASTRAR MEMBRO/USUARIO: {e}")
         flash(f"Erro ao cadastrar membro/usuário: {e}", "danger")
 
     return redirect(url_for("members.index"))
