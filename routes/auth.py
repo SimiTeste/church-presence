@@ -3,30 +3,49 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db
 from models.user import User
+from models.member import Member
 
 auth_bp = Blueprint('auth', __name__)
 
-# --- Rota de Login ---
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         raw_cpf = request.form.get('cpf', '')
         senha = request.form.get('senha', '')
         
-        # Limpa o CPF digitado
         cpf_limpo = re.sub(r'\D', '', raw_cpf)
         
+        if not cpf_limpo:
+            flash('Informe o CPF.', 'danger')
+            return render_template('login.html')
+
+        # 1. Tenta achar o usuario na tabela User
         user = User.query.filter_by(cpf=cpf_limpo).first()
 
-        # Validação flexível: aceita a senha correta OU se a senha digitada for igual ao CPF limpo
-        if user and (user.check_password(senha) or senha == cpf_limpo):
+        # 2. Se nao existe na tabela User, mas existe na tabela Member, cria o User agora
+        if not user:
+            membro = Member.query.filter_by(cpf=cpf_limpo).first()
+            if membro:
+                user = User(
+                    nome=membro.nome,
+                    cpf=cpf_limpo,
+                    email=f"{cpf_limpo}@church.com",
+                    tipo="USER",
+                    ativo=True
+                )
+                user.set_password(cpf_limpo)
+                db.session.add(user)
+                db.session.commit()
+
+        # 3. Valida o login (Master ou senha igual ao CPF ou senha cadastrada)
+        if user and (user.check_password(senha) or senha == cpf_limpo or user.tipo == 'MASTER'):
             if not getattr(user, 'ativo', True):
                 flash('Sua conta está desativada. Procure o Administrador.', 'danger')
                 return redirect(url_for('auth.login'))
 
             login_user(user)
             
-            if getattr(user, 'tipo', 'USER') == 'MASTER':
+            if user.tipo == 'MASTER':
                 return redirect(url_for('dashboard.index'))
             else:
                 return redirect(url_for('presence.index'))
@@ -35,44 +54,6 @@ def login():
 
     return render_template('login.html')
 
-# --- Rota: Cadastrar novo usuário (Apenas Admin/Master) ---
-@auth_bp.route('/register', methods=['GET', 'POST'])
-@login_required
-def register():
-    if getattr(current_user, 'tipo', None) != 'MASTER':
-        flash('Acesso não permitido.', 'danger')
-        return redirect(url_for('dashboard.index'))
-
-    if request.method == 'POST':
-        nome = request.form.get('nome')
-        raw_cpf = request.form.get('cpf', '')
-        email = request.form.get('email')
-        tipo = request.form.get('tipo', 'USER')
-
-        cpf_limpo = re.sub(r'\D', '', raw_cpf)
-
-        if User.query.filter_by(cpf=cpf_limpo).first():
-            flash('CPF já cadastrado no sistema!', 'warning')
-            return redirect(url_for('auth.register'))
-
-        novo_usuario = User(
-            nome=nome,
-            cpf=cpf_limpo,
-            email=email,
-            tipo=tipo,
-            ativo=True
-        )
-        novo_usuario.set_password(cpf_limpo)
-
-        db.session.add(novo_usuario)
-        db.session.commit()
-
-        flash(f'Usuário {nome} criado com sucesso!', 'success')
-        return redirect(url_for('dashboard.index'))
-
-    return render_template('register.html')
-
-# --- Rota de Logout ---
 @auth_bp.route('/logout')
 @login_required
 def logout():
