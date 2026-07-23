@@ -22,11 +22,9 @@ def index():
     
     query = Member.query
     
-    # Filtro por texto (busca)
     if search:
         query = query.filter(Member.nome.ilike(f"%{search}%"))
         
-    # Filtro por departamento
     if departamento_selecionado:
         query = query.filter_by(departamento=departamento_selecionado)
         
@@ -48,9 +46,7 @@ def add():
     departamento = request.form.get("departamento")
     sexo = request.form.get("sexo")
     
-    # Captura se o checkbox de liberar acesso foi marcado
     liberar_acesso = True if request.form.get("liberar_acesso") == "on" else False
-
     cpf_limpo = re.sub(r"\D", "", raw_cpf) if raw_cpf else None
 
     if cpf_limpo and Member.query.filter_by(cpf=cpf_limpo).first():
@@ -78,23 +74,25 @@ def add():
             foto=filename
         )
         db.session.add(new_member)
-        db.session.flush() # Garante que o ID do membro seja gerado para o relacionamento
+        db.session.flush()
 
-        # 2. Cria o Usuário de acesso APENAS se a opção "liberar_acesso" estiver marcada
-        if liberar_acesso and cpf_limpo and not User.query.filter_by(cpf=cpf_limpo).first():
-            email_padrao = f"{cpf_limpo}@church.com"
-            new_user = User(
-                nome=nome,
-                cpf=cpf_limpo,
-                email=email_padrao,
-                tipo="USER",      # Define como usuário comum
-                ativo=True
-            )
-            if hasattr(User, 'member_id'):
-                new_user.member_id = new_member.id
-                
-            new_user.set_password(cpf_limpo) # Senha padrão inicial é o CPF do membro
-            db.session.add(new_user)
+        # 2. Cria o Usuário de acesso se solicitado e houver CPF
+        if liberar_acesso and cpf_limpo:
+            user_existente = User.query.filter_by(cpf=cpf_limpo).first()
+            if not user_existente:
+                email_padrao = f"{cpf_limpo}@church.com"
+                new_user = User(
+                    nome=nome,
+                    cpf=cpf_limpo,
+                    email=email_padrao,
+                    tipo="USER",
+                    ativo=True
+                )
+                if hasattr(User, 'member_id'):
+                    new_user.member_id = new_member.id
+                    
+                new_user.set_password(cpf_limpo)
+                db.session.add(new_user)
 
         db.session.commit()
         
@@ -105,7 +103,7 @@ def add():
         
     except Exception as e:
         db.session.rollback()
-        flash(f"Erro ao cadastrar membro: {e}", "danger")
+        flash(f"Erro ao cadastrar membro/usuário: {e}", "danger")
 
     return redirect(url_for("members.index"))
 
@@ -121,7 +119,6 @@ def edit_member(member_id):
         member.sexo = request.form.get("sexo")
         member.ativo = True if request.form.get("ativo") == "on" else False
         
-        # Tratamento opcional de nova foto na edição
         if 'foto' in request.files:
             file = request.files['foto']
             if file and file.filename != '' and allowed_file(file.filename):
@@ -134,7 +131,6 @@ def edit_member(member_id):
 
         db.session.commit()
         
-        # Opcional: Atualiza também os dados do usuário vinculado se existir
         if member.cpf:
             user_relacionado = User.query.filter_by(cpf=member.cpf).first()
             if user_relacionado:
@@ -152,7 +148,6 @@ def edit_member(member_id):
 def delete(member_id):
     member = Member.query.get_or_404(member_id)
     
-    # Remove também o usuário vinculado se existir
     if member.cpf:
         user_relacionado = User.query.filter_by(cpf=member.cpf).first()
         if user_relacionado:

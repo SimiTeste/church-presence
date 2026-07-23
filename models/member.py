@@ -8,7 +8,7 @@ class Member(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    cpf = db.Column(db.String(11), unique=True, nullable=True) # Ajustado para 11 dígitos limpos
+    cpf = db.Column(db.String(11), unique=True, nullable=True)
     telefone = db.Column(db.String(20), nullable=True)
     foto = db.Column(db.String(255), default='default.png')
     departamento = db.Column(db.String(50), default='Geral')
@@ -20,5 +20,4 @@ class Member(db.Model):
     def validate_cpf(self, key, cpf_value):
         if not cpf_value:
             return None
-        # Remove qualquer caractere que não seja número automaticamente
         return re.sub(r'\D', '', cpf_value)
