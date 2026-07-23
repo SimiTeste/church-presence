@@ -46,11 +46,13 @@ app.register_blueprint(reports_bp)
 def index():
     return redirect(url_for('auth.login'))
 
-# Criacao de tabelas e usuario Master inicial
+# Criacao de tabelas, atualizacao de esquema e usuario Master inicial
 with app.app_context():
     db.create_all()
     try:
-        if not User.query.filter_by(cpf="00000000000").first():
+        # Garante que o usuario Master sempre exista e esteja atualizado
+        master = User.query.filter_by(cpf="00000000000").first()
+        if not master:
             master = User(
                 nome="Administrador Master",
                 cpf="00000000000",
@@ -60,8 +62,13 @@ with app.app_context():
             )
             master.set_password("admin123")
             db.session.add(master)
-            db.session.commit()
             print(">>> Usuario Master criado com sucesso! <<<")
+        else:
+            master.tipo = "MASTER"
+            master.ativo = True
+            db.session.add(master)
+            
+        db.session.commit()
     except Exception as e:
         db.session.rollback()
         print(f">>> Erro ao inicializar usuario master: {e} <<<")
