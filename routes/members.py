@@ -143,7 +143,7 @@ def edit_member(member_id):
         
     return render_template("edit_member.html", member=member)
 
-@members_bp.route("/members/delete/<int:member_id>", methods=["POST"])
+@members_bp.route("/members/delete/<int:member_id>", methods=["GET", "POST"])
 @login_required
 def delete(member_id):
     member = Member.query.get_or_404(member_id)
