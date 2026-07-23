@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Membro - Church Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Church Presence</div>
+        <div class="user-info">
+            <a href="{{ url_for('members.index') }}" style="color: white; margin-right: 15px; text-decoration: none;">← Voltar aos Membros</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout">Sair</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-content" style="max-width: 600px; margin: 0 auto;">
+        <div class="card">
+            <h2>✏️ Editar Membro: {{ member.nome }}</h2>
+            
+            <form method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nome Completo:</label>
+                    <input type="text" name="nome" value="{{ member.nome }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Telefone / WhatsApp:</label>
+                    <input type="text" name="telefone" value="{{ member.telefone or '' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Departamento:</label>
+                    <select name="departamento" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="Geral" {% if member.departamento == 'Geral' %}selected{% endif %}>Geral</option>
+                        <option value="Jovens" {% if member.departamento == 'Jovens' %}selected{% endif %}>Jovens</option>
+                        <option value="Adultos" {% if member.departamento == 'Adultos' %}selected{% endif %}>Adultos</option>
+                        <option value="Infantil" {% if member.departamento == 'Infantil' %}selected{% endif %}>Infantil</option>
+                        <option value="Adolescentes" {% if member.departamento == 'Adolescentes' %}selected{% endif %}>Adolescentes</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Sexo:</label>
+                    <select name="sexo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="M" {% if member.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                        <option value="F" {% if member.sexo == 'F' %}selected{% endif %}>Feminino</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nova Foto (Opcional):</label>
+                    <input type="file" name="foto" accept="image/*" style="width: 100%; padding: 5px;">
+                </div>
+
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" name="ativo" id="ativo" {% if member.ativo %}checked{% endif %} style="width: 18px; height: 18px;">
+                    <label for="ativo" style="font-weight: bold; cursor: pointer;">Membro Ativo</label>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Salvar Alterações</button>
+                    <a href="{{ url_for('members.index') }}" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Presença - Church Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Church Presence</div>
+        <div class="user-info">
+            <a href="{{ url_for('dashboard.index') }}" style="color: white; margin-right: 15px; text-decoration: none;">← Voltar ao Painel</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout">Sair</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-content">
+        <h1>Lista de Presença - EBD</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" style="padding: 10px; margin-bottom: 15px; border-radius: 4px; background-color: #d4edda; color: #155724;">
+                  {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+            <!-- Painel Lateral: Criar EBD e Histórico -->
+            <div>
+                <div class="card" style="margin-bottom: 20px; border-left: 4px solid #28a745;">
+                    <h3>📖 Chamada da EBD</h3>
+                    <p style="font-size: 13px; color: #666; margin: 5px 0 15px 0;">Data: <strong>{{ next_sunday_str }}</strong></p>
+                    <form action="{{ url_for('presence.quick_add_ebd') }}" method="POST">
+                        <button type="submit" style="width: 100%; background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                            ➕ Abrir EBD do Domingo
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Histórico de EBDs</h3>
+                    <ul style="list-style: none; padding: 0; margin-top: 15px;">
+                        {% for ev in events %}
+                        <li style="margin-bottom: 10px;">
+                            <a href="{{ url_for('presence.index', event_id=ev.id, departamento=departamento_selecionado) }}" style="display: block; padding: 10px; background-color: {% if selected_event and selected_event.id == ev.id %}#0B3D91{% else %}#f1f1f1{% endif %}; color: {% if selected_event and selected_event.id == ev.id %}white{% else %}#333{% endif %}; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                                {{ ev.nome }} — {{ ev.data.strftime('%d/%m/%Y') }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li style="color: #666;">Nenhuma EBD cadastrada ainda.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Lista de Membros para Marcação -->
+            <div class="card">
+                {% if selected_event %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                        <h3 style="margin: 0;">Chamada: {{ selected_event.nome }} ({{ selected_event.data.strftime('%d/%m/%Y') }})</h3>
+                        
+                        <!-- Filtro por Departamento -->
+                        <form method="GET" action="{{ url_for('presence.index') }}" style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                            {% if selected_event %}
+                                <input type="hidden" name="event_id" value="{{ selected_event.id }}">
+                            {% endif %}
+                            <select name="departamento" id="departamento" onchange="this.form.submit()" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+                                <option value="">Todos os Departamentos</option>
+                                <option value="Jovens" {% if departamento_selecionado == 'Jovens' %}selected{% endif %}>Jovens</option>
+                                <option value="Adultos" {% if departamento_selecionado == 'Adultos' %}selected{% endif %}>Adultos</option>
+                                <option value="Adolescentes" {% if departamento_selecionado == 'Adolescentes' %}selected{% endif %}>Adolescentes</option>
+                            </select>
+                        </form>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="background-color: #f1f1f1; text-align: left;">
+                                <th style="padding: 10px;">Foto</th>
+                                <th style="padding: 10px;">Nome</th>
+                                <th style="padding: 10px;">Departamento</th>
+                                <th style="padding: 10px; text-align: center;">Presença</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">
+                                    <img src="{{ url_for('static', filename='uploads/members/' + member.foto) }}" 
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/40';" 
+                                         alt="Foto" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                </td>
+                                <td style="padding: 10px;">{{ member.nome }}</td>
+                                <td style="padding: 10px;">{{ member.departamento }}</td>
+                                <td style="padding: 10px; text-align: center;">
+                                    <form action="{{ url_for('presence.toggle_presence', event_id=selected_event.id, member_id=member.id) }}" method="POST">
+                                        {% if member.id in present_member_ids %}
+                                            <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">✔ Presente</button>
+                                        {% else %}
+                                            <button type="submit" style="background-color: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer;">Ausente</button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" style="padding: 20px; text-align: center; color: #666;">Nenhum membro encontrado neste departamento.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <h3>Clique em "➕ Abrir EBD do Domingo" ao lado para iniciar a chamada.</h3>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

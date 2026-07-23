@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+.navbar {
+    background-color: #0B3D91;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.btn-logout {
+    color: #ffc107;
+    text-decoration: none;
+    font-weight: bold;
+}
+.dashboard-content {
+    padding: 2rem;
+}
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-top: 4px solid #0B3D91;
+}
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #e9ecef;
+    color: #495057;
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
+
+/* Responsividade para Celulares e Telas Pequenas */
+@media (max-width: 768px) {
+    /* Ajusta o espaçamento geral da tela para aproveitar melhor as bordas */
+    .dashboard-content {
+        padding: 1rem;
+    }
+
+    /* Empilha a barra de navegação caso o menu e o botão fiquem apertados */
+    .navbar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    /* Faz os campos de formulário e filtros preencherem 100% da largura no celular */
+    form {
+        display: flex;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    form input, 
+    form select, 
+    form button, 
+    form a {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Torna as tabelas responsivas com rolagem horizontal suave */
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Reduz o espaçamento interno dos cards em telas menores */
+    .card {
+        padding: 1rem;
+    }
+}
