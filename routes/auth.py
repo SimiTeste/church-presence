@@ -1,3 +1,4 @@
+import re
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db
@@ -9,9 +10,13 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        cpf = request.form.get('cpf')
-        senha = request.form.get('senha')
-        user = User.query.filter_by(cpf=cpf).first()
+        raw_cpf = request.form.get('cpf', '')
+        senha = request.form.get('senha', '')
+        
+        # Limpa o CPF digitado para buscar corretamente no banco
+        cpf_limpo = re.sub(r'\D', '', raw_cpf)
+        
+        user = User.query.filter_by(cpf=cpf_limpo).first()
 
         if user and user.check_password(senha):
             if not getattr(user, 'ativo', True):
@@ -40,20 +45,23 @@ def register():
 
     if request.method == 'POST':
         nome = request.form.get('nome')
-        cpf = request.form.get('cpf', '').replace('.', '').replace('-', '').strip()
+        raw_cpf = request.form.get('cpf', '')
         email = request.form.get('email')
         tipo = request.form.get('tipo', 'USER')
 
-        if User.query.filter_by(cpf=cpf).first():
+        # Limpa o CPF para salvar padronizado
+        cpf_limpo = re.sub(r'\D', '', raw_cpf)
+
+        if User.query.filter_by(cpf=cpf_limpo).first():
             flash('CPF já cadastrado no sistema!', 'warning')
             return redirect(url_for('auth.register'))
 
-        # A senha inicial será os 6 primeiros dígitos do CPF
-        senha_inicial = cpf[:6] if len(cpf) >= 6 else '123456'
+        # A senha inicial será o CPF completo limpo (para alinhar com o cadastro de membros)
+        senha_inicial = cpf_limpo
 
         novo_usuario = User(
             nome=nome,
-            cpf=cpf,
+            cpf=cpf_limpo,
             email=email,
             tipo=tipo,
             ativo=True
@@ -63,7 +71,7 @@ def register():
         db.session.add(novo_usuario)
         db.session.commit()
 
-        flash(f'Usuário {nome} criado! A senha inicial é: {senha_inicial}', 'success')
+        flash(f'Usuário {nome} criado com sucesso!', 'success')
         return redirect(url_for('dashboard.index'))
 
     return render_template('register.html')
