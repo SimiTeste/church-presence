@@ -64,37 +64,41 @@ def add():
             os.makedirs(upload_path, exist_ok=True)
             file.save(os.path.join(upload_path, filename))
 
-    # 1. Cria o membro
-    new_member = Member(
-        nome=nome,
-        cpf=cpf_limpo,
-        telefone=telefone,
-        departamento=departamento,
-        sexo=sexo,
-        foto=filename
-    )
-
-    db.session.add(new_member)
-    db.session.commit()
-
-    # 2. Cria automaticamente o Usuário de acesso correspondente para o painel comum
-    if cpf_limpo and not User.query.filter_by(cpf=cpf_limpo).first():
-        email_padrao = f"{cpf_limpo}@church.com"
-        new_user = User(
+    try:
+        # 1. Cria o membro
+        new_member = Member(
             nome=nome,
             cpf=cpf_limpo,
-            email=email_padrao,
-            tipo="USER",       # Define como usuário comum para ver o ranking
-            ativo=True
+            telefone=telefone,
+            departamento=departamento,
+            sexo=sexo,
+            foto=filename
         )
-        if hasattr(User, 'member_id'):
-            new_user.member_id = new_member.id
-            
-        new_user.set_password(cpf_limpo) # Senha padrão inicial é o CPF do membro
-        db.session.add(new_user)
-        db.session.commit()
+        db.session.add(new_member)
+        db.session.flush() # Garante que o ID do membro seja gerado para o relacionamento
 
-    flash("Membro cadastrado com sucesso e acesso de usuário gerado!", "success")
+        # 2. Cria automaticamente o Usuário de acesso correspondente para o painel comum
+        if cpf_limpo and not User.query.filter_by(cpf=cpf_limpo).first():
+            email_padrao = f"{cpf_limpo}@church.com"
+            new_user = User(
+                nome=nome,
+                cpf=cpf_limpo,
+                email=email_padrao,
+                tipo="USER",      # Define como usuário comum
+                ativo=True
+            )
+            if hasattr(User, 'member_id'):
+                new_user.member_id = new_member.id
+                
+            new_user.set_password(cpf_limpo) # Senha padrão inicial é o CPF do membro
+            db.session.add(new_user)
+
+        db.session.commit()
+        flash("Membro cadastrado com sucesso e acesso de usuário gerado!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Erro ao cadastrar membro e usuário: {e}", "danger")
+
     return redirect(url_for("members.index"))
 
 @members_bp.route("/members/edit/<int:member_id>", methods=["GET", "POST"])

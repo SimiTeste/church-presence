@@ -5,7 +5,7 @@ from models.user import User
 
 auth_bp = Blueprint('auth', __name__)
 
-# --- Rota de Login Existente ---
+# --- Rota de Login ---
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -14,8 +14,17 @@ def login():
         user = User.query.filter_by(cpf=cpf).first()
 
         if user and user.check_password(senha):
+            if not getattr(user, 'ativo', True):
+                flash('Sua conta está desativada. Procure o Administrador.', 'danger')
+                return redirect(url_for('auth.login'))
+
             login_user(user)
-            return redirect(url_for('dashboard.index'))
+            
+            # Redirecionamento dinâmico baseado no tipo de usuário
+            if getattr(user, 'tipo', 'USER') == 'MASTER':
+                return redirect(url_for('dashboard.index'))
+            else:
+                return redirect(url_for('presence.index'))
         else:
             flash('CPF ou senha incorretos.', 'danger')
 
