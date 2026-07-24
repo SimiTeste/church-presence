@@ -168,11 +168,11 @@
                     <label for="departamento" class="form-label fw-semibold" style="font-size: 14px;">Filtrar por Departamento</label>
                     <select class="form-select" id="departamento" name="departamento" onchange="this.form.submit()">
                         <option value="">-- Todos os Departamentos --</option>
-                        {% for dep in departamentos_disponiveis %}
-                            <option value="{{ dep }}" {{ 'selected' if departamento_selecionado == dep else '' }}>
-                                {{ dep }}
-                            </option>
-                        {% endfor %}
+                        <option value="Infantil" {{ 'selected' if departamento_selecionado == 'Infantil' else '' }}>Infantil</option>
+                        <option value="Adolescentes" {{ 'selected' if departamento_selecionado == 'Adolescentes' else '' }}>Adolescentes</option>
+                        <option value="Jovens" {{ 'selected' if departamento_selecionado == 'Jovens' else '' }}>Jovens</option>
+                        <option value="Adultos" {{ 'selected' if departamento_selecionado == 'Adultos' else '' }}>Adultos</option>
+                        <option value="Geral" {{ 'selected' if departamento_selecionado == 'Geral' else '' }}>Geral</option>
                     </select>
                 </div>
 
@@ -187,8 +187,15 @@
                         <h5 class="mb-1 fw-bold text-dark"><i class="bi bi-calendar-event me-2"></i>{{ selected_event.nome }}</h5>
                         <p class="text-muted mb-0 small">Data: {{ selected_event.data.strftime('%d/%m/%Y') }}</p>
                     </div>
-                    <div>
-                        <span class="badge bg-secondary">Total Exibidos: {{ members|length }}</span>
+                    <div class="text-end">
+                        {% set total_presentes = namespace(count=0) %}
+                        {% for member in members %}
+                            {% if member.id in present_member_ids %}
+                                {% set total_presentes.count = total_presentes.count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        <span class="badge bg-secondary me-2">Total Exibidos: {{ members|length }}</span>
+                        <span class="badge bg-success">Presentes: {{ total_presentes.count }}</span>
                     </div>
                 </div>
 
