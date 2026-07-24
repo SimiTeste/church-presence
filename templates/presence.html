@@ -139,27 +139,31 @@
 
         <!-- Cabeçalho da Página -->
         <div class="page-header">
-            <h1 class="page-title"><i class="bi bi-check2-square me-2"></i>Controle de Chamada e Presença</h1>
+            <h1 class="page-title"><i class="bi bi-check2-square me-2"></i>Chamada - Culto de Domingo</h1>
         </div>
 
         <!-- Bloco de Formulário / Lista de Chamada -->
         <div class="card-custom">
-            <form method="POST">
-                
-                <!-- Filtros ou Seleção de Culto/Data se houver no seu backend -->
-                <div class="row mb-4 align-items-end">
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <label for="data_culto" class="form-label fw-semibold" style="font-size: 14px;">Data do Culto / Reunião</label>
-                        <input type="date" class="form-control" id="data_culto" name="data_culto" value="{{ data_atual or '' }}">
+            <form method="GET" action="{{ url_for('presence.index') }}" class="row mb-4 align-items-end">
+                <div class="col-md-4">
+                    <label for="data" class="form-label fw-semibold" style="font-size: 14px;">Filtrar / Data do Culto (Domingo)</label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="data" name="data" value="{{ data_selecionada or '' }}">
+                        <button class="btn btn-dark-custom btn-custom" type="submit">Filtrar</button>
                     </div>
                 </div>
+            </form>
+
+            <form method="POST">
+                <!-- Mantém a data selecionada no POST para salvar no dia certo -->
+                <input type="hidden" name="data_culto" value="{{ data_selecionada or '' }}">
 
                 <div class="table-responsive">
                     <table class="table table-custom mb-0">
                         <thead>
                             <tr>
                                 <th>Nome do Membro</th>
-                                <th class="text-center" style="width: 150px;">Presente</th>
+                                <th class="text-center" style="width: 180px;">Status de Presença</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -168,15 +172,19 @@
                                 <tr>
                                     <td class="fw-semibold text-dark">{{ member.nome }}</td>
                                     <td class="text-center">
-                                        <div class="form-check d-flex justify-content-center">
-                                            <input class="form-check-input" type="checkbox" name="presenca_{{ member.id }}" id="membro_{{ member.id }}" style="width: 20px; height: 20px; cursor: pointer;">
+                                        <div class="btn-group" role="group" aria-label="Presenca">
+                                            <input type="radio" class="btn-check" name="presenca_{{ member.id }}" id="presente_{{ member.id }}" value="presente" {{ 'checked' if presencas_dict.get(member.id) == 'presente' else '' }}>
+                                            <label class="btn btn-outline-success btn-sm btn-custom" for="presente_{{ member.id }}">Presente</label>
+
+                                            <input type="radio" class="btn-check" name="presenca_{{ member.id }}" id="ausente_{{ member.id }}" value="ausente" {{ 'checked' if presencas_dict.get(member.id) != 'presente' else '' }}>
+                                            <label class="btn btn-outline-danger btn-sm btn-custom" for="ausente_{{ member.id }}">Ausente</label>
                                         </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted py-4">Nenhum membro encontrado para realizar a chamada.</td>
+                                    <td colspan="2" class="text-center text-muted py-4">Nenhum membro cadastrado para exibir na chamada.</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -186,7 +194,7 @@
                 {% if members %}
                 <div class="d-flex justify-content-end mt-4">
                     <button type="submit" class="btn btn-dark-custom btn-custom">
-                        <i class="bi bi-check-lg me-1"></i> Salvar Chamada
+                        <i class="bi bi-check-lg me-1"></i> Salvar Chamada do Domingo
                     </button>
                 </div>
                 {% endif %}
