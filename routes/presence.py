@@ -15,7 +15,6 @@ def get_next_sunday():
 @presence_bp.route("/presence", methods=["GET"])
 @login_required
 def index():
-    # Se o usuário não for MASTER, restringe o acesso e redireciona para o painel
     if getattr(current_user, 'tipo', 'USER') != 'MASTER':
         flash("Acesso restrito à área administrativa.", "warning")
         return redirect(url_for("dashboard.index"))
@@ -24,7 +23,6 @@ def index():
     selected_event_id = request.args.get("event_id", type=int)
     departamento_selecionado = request.args.get("departamento", "").strip()
     
-    # Se nenhum evento foi selecionado, mas existem eventos, seleciona o mais recente por padrão
     if not selected_event_id and events:
         selected_event_id = events[0].id
 
@@ -32,15 +30,19 @@ def index():
     members = []
     present_member_ids = []
 
+    # Busca todos os departamentos únicos cadastrados para preencher o select do filtro
+    departamentos_disponiveis = []
+    if hasattr(Member, 'departamento'):
+        deps = db.session.query(Member.departamento).filter(Member.departamento != None, Member.departamento != '').distinct().all()
+        departamentos_disponiveis = [d[0] for d in deps]
+
     if selected_event_id:
         selected_event = Event.query.get_or_404(selected_event_id)
         
-        # Consulta base de membros (ajustado caso o campo ativo não exista em todos os models)
         query = Member.query
         if hasattr(Member, 'ativo'):
             query = query.filter_by(ativo=True)
         
-        # Aplica o filtro de departamento se selecionado
         if departamento_selecionado and hasattr(Member, 'departamento'):
             query = query.filter_by(departamento=departamento_selecionado)
             
@@ -56,7 +58,8 @@ def index():
         members=members, 
         present_member_ids=present_member_ids,
         next_sunday_str=next_sunday_str,
-        departamento_selecionado=departamento_selecionado
+        departamento_selecionado=departamento_selecionado,
+        departamentos_disponiveis=departamentos_disponiveis
     )
 
 @presence_bp.route("/events/quick_add_ebd", methods=["POST"])
@@ -88,7 +91,6 @@ def toggle_presence(event_id, member_id):
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
 
-    # Captura o departamento atual da URL ou do formulário para manter o filtro ativo
     departamento_selecionado = request.args.get("departamento") or request.form.get("departamento", "")
     
     attendance = Attendance.query.filter_by(event_id=event_id, member_id=member_id).first()
