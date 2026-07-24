@@ -46,13 +46,13 @@ def login():
 
         # 4. Validação de acesso flexível (se o usuário existe e a senha confere ou é o próprio CPF)
         if user:
-            # Força a atualização do hash da senha para garantir que bata com o CPF limpo caso estivesse dessincronizado
             if senha == cpf_limpo or user.check_password(senha):
                 if not getattr(user, 'ativo', True):
                     flash('Sua conta está desativada. Procure o Administrador.', 'danger')
                     return redirect(url_for('auth.login'))
 
-                # Garante que a senha salva seja sempre o hash correto do CPF
+                # Garante que a senha salva seja sempre o hash correto do CPF e que o tipo seja USER
+                user.tipo = "USER"
                 user.set_password(cpf_limpo)
                 db.session.commit()
 
@@ -61,7 +61,8 @@ def login():
                 if user.tipo == 'MASTER':
                     return redirect(url_for('dashboard.index'))
                 else:
-                    return redirect(url_for('presence.index'))
+                    # CORREÇÃO: Direciona para o painel correto do usuário comum
+                    return redirect(url_for('user_dashboard.index'))
 
         flash('CPF ou senha incorretos.', 'danger')
 
