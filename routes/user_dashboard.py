@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 from models.member import Member
 from models.attendance import Event, Attendance
+from models.notice import Notice  # <--- Importe o model de avisos
 
 user_dashboard_bp = Blueprint("user_dashboard", __name__)
 
@@ -28,6 +29,9 @@ def index():
 
     frase_motivacional = get_daily_quote()
 
+    # Busca os avisos ativos cadastrados pela igreja/secretaria
+    avisos = Notice.query.filter_by(ativo=True).order_by(Notice.data_criacao.desc()).all()
+
     # Tenta encontrar o membro vinculado pelo CPF do usuário logado
     membro = Member.query.filter_by(cpf=current_user.cpf).first()
 
@@ -43,7 +47,8 @@ def index():
             total_faltas=total_ebds,
             dias_comparecidos=[],
             ranking_completo=[],
-            frase_motivacional=frase_motivacional
+            frase_motivacional=frase_motivacional,
+            avisos=avisos
         )
 
     # Busca presenças do membro
@@ -94,5 +99,6 @@ def index():
         total_faltas=total_faltas,
         dias_comparecidos=dias_comparecidos,
         ranking_completo=ranking_completo,
-        frase_motivacional=frase_motivacional
+        frase_motivacional=frase_motivacional,
+        avisos=avisos
     )

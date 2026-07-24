@@ -100,6 +100,31 @@
             </div>
         </div>
 
+        <!-- Seção de Avisos e Comunicados da Igreja -->
+        <div class="card-custom mb-4">
+            <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">
+                <i class="bi bi-megaphone me-2 text-primary"></i>Avisos e Comunicados
+            </h5>
+            
+            {% if avisos %}
+                <div class="row g-3">
+                    {% for aviso in avisos %}
+                    <div class="col-md-12">
+                        <div class="p-3 border rounded-3 bg-light border-start border-primary border-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="fw-bold text-dark mb-0" style="font-size: 15px;">{{ aviso.titulo }}</h6>
+                                <small class="text-muted" style="font-size: 12px;">{{ aviso.data_criacao.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            <p class="mb-0 text-secondary" style="font-size: 14px;">{{ aviso.conteudo }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0" style="font-size: 14px;">Nenhum aviso ou comunicado no momento.</p>
+            {% endif %}
+        </div>
+
         <!-- Estatísticas e Frequência do Membro -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
