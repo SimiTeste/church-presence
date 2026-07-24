@@ -3,7 +3,10 @@ from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 from models.member import Member
 from models.attendance import Event, Attendance
-from models.notice import Notice  # <--- Importe o model de avisos
+try:
+    from models.notice import Notice
+except ImportError:
+    Notice = None
 
 user_dashboard_bp = Blueprint("user_dashboard", __name__)
 
@@ -29,8 +32,13 @@ def index():
 
     frase_motivacional = get_daily_quote()
 
-    # Busca os avisos ativos cadastrados pela igreja/secretaria
-    avisos = Notice.query.filter_by(ativo=True).order_by(Notice.data_criacao.desc()).all()
+    # Busca os avisos ativos de forma segura caso a tabela ainda esteja se sincronizando
+    avisos = []
+    if Notice:
+        try:
+            avisos = Notice.query.filter_by(ativo=True).order_by(Notice.data_criacao.desc()).all()
+        except Exception:
+            avisos = []
 
     # Tenta encontrar o membro vinculado pelo CPF do usuário logado
     membro = Member.query.filter_by(cpf=current_user.cpf).first()
