@@ -67,11 +67,11 @@
             color: #475569;
             font-weight: 600;
             border-bottom: 1px solid #e2e8f0;
-            padding: 12px 16px;
+            padding: 14px 16px;
         }
 
         .table-custom td {
-            padding: 14px 16px;
+            padding: 16px;
             color: #334155;
             border-bottom: 1px solid #f1f5f9;
         }
@@ -139,31 +139,58 @@
 
         <!-- Cabeçalho da Página -->
         <div class="page-header">
-            <h1 class="page-title"><i class="bi bi-check2-square me-2"></i>Chamada - Culto de Domingo</h1>
+            <h1 class="page-title"><i class="bi bi-check2-square me-2"></i>Controle de Presença (Culto de Domingo)</h1>
+            <div>
+                <form action="{{ url_for('presence.quick_add_ebd') }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-dark-custom btn-custom">
+                        <i class="bi bi-plus-circle me-1"></i> Criar Culto / EBD p/ Domingo
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <!-- Bloco de Formulário / Lista de Chamada -->
+        <!-- Bloco de Seleção de Evento e Filtros -->
         <div class="card-custom">
-            <form method="GET" action="{{ url_for('presence.index') }}" class="row mb-4 align-items-end">
+            <form method="GET" action="{{ url_for('presence.index') }}" class="row g-3 align-items-end mb-4">
+                <div class="col-md-6">
+                    <label for="event_id" class="form-label fw-semibold" style="font-size: 14px;">Selecione o Culto / Evento</label>
+                    <select class="form-select" id="event_id" name="event_id" onchange="this.form.submit()">
+                        <option value="">-- Escolha um Culto --</option>
+                        {% for event in events %}
+                            <option value="{{ event.id }}" {{ 'selected' if selected_event and selected_event.id == event.id else '' }}>
+                                {{ event.nome }} - {{ event.data.strftime('%d/%m/%Y') }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <div class="col-md-4">
-                    <label for="data" class="form-label fw-semibold" style="font-size: 14px;">Filtrar / Data do Culto (Domingo)</label>
-                    <div class="input-group">
-                        <input type="date" class="form-control" id="data" name="data" value="{{ data_selecionada or '' }}">
-                        <button class="btn btn-dark-custom btn-custom" type="submit">Filtrar</button>
-                    </div>
+                    <label for="departamento" class="form-label fw-semibold" style="font-size: 14px;">Filtrar por Departamento</label>
+                    <input type="text" class="form-control" id="departamento" name="departamento" value="{{ departamento_selecionado or '' }}" placeholder="Ex: Jovens, Mulheres...">
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark-custom btn-custom w-100">Filtrar</button>
                 </div>
             </form>
 
-            <form method="POST">
-                <!-- Mantém a data selecionada no POST para salvar no dia certo -->
-                <input type="hidden" name="data_culto" value="{{ data_selecionada or '' }}">
+            {% if selected_event %}
+                <div class="alert alert-light border mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1 fw-bold text-dark"><i class="bi bi-calendar-event me-2"></i>{{ selected_event.nome }}</h5>
+                        <p class="text-muted mb-0 small">Data: {{ selected_event.data.strftime('%d/%m/%Y') }}</p>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary">Total Listados: {{ members|length }}</span>
+                    </div>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-custom mb-0">
                         <thead>
                             <tr>
                                 <th>Nome do Membro</th>
-                                <th class="text-center" style="width: 180px;">Status de Presença</th>
+                                <th class="text-center" style="width: 220px;">Status de Presença</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -172,34 +199,35 @@
                                 <tr>
                                     <td class="fw-semibold text-dark">{{ member.nome }}</td>
                                     <td class="text-center">
-                                        <div class="btn-group" role="group" aria-label="Presenca">
-                                            <input type="radio" class="btn-check" name="presenca_{{ member.id }}" id="presente_{{ member.id }}" value="presente" {{ 'checked' if presencas_dict.get(member.id) == 'presente' else '' }}>
-                                            <label class="btn btn-outline-success btn-sm btn-custom" for="presente_{{ member.id }}">Presente</label>
-
-                                            <input type="radio" class="btn-check" name="presenca_{{ member.id }}" id="ausente_{{ member.id }}" value="ausente" {{ 'checked' if presencas_dict.get(member.id) != 'presente' else '' }}>
-                                            <label class="btn btn-outline-danger btn-sm btn-custom" for="ausente_{{ member.id }}">Ausente</label>
-                                        </div>
+                                        {% set is_present = member.id in present_member_ids %}
+                                        <form action="{{ url_for('presence.toggle_presence', event_id=selected_event.id, member_id=member.id, departamento=departamento_selecionado) }}" method="POST" class="d-inline">
+                                            {% if is_present %}
+                                                <button type="submit" class="btn btn-success btn-sm btn-custom px-3">
+                                                    <i class="bi bi-check-circle-fill me-1"></i> Presente
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm btn-custom px-3">
+                                                    <i class="bi bi-x-circle me-1"></i> Ausente
+                                                </button>
+                                            {% endif %}
+                                        </form>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted py-4">Nenhum membro cadastrado para exibir na chamada.</td>
+                                    <td colspan="2" class="text-center text-muted py-4">Nenhum membro ativo encontrado com os filtros selecionados.</td>
                                 </tr>
                             {% endif %}
                         </tbody>
                     </table>
                 </div>
-
-                {% if members %}
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-dark-custom btn-custom">
-                        <i class="bi bi-check-lg me-1"></i> Salvar Chamada do Domingo
-                    </button>
+            {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-info-circle fs-3 d-block mb-2 text-secondary"></i>
+                    Selecione um culto/evento acima ou clique em "Criar Culto / EBD p/ Domingo" para iniciar a chamada.
                 </div>
-                {% endif %}
-
-            </form>
+            {% endif %}
         </div>
 
     </div>

@@ -15,16 +15,19 @@ def get_next_sunday():
 @presence_bp.route("/presence", methods=["GET"])
 @login_required
 def index():
-    # Se o usuário for comum (USER), ele não pode ver a listagem geral de presenças/eventos do painel administrativo
+    # Se o usuário não for MASTER, restringe o acesso e redireciona para o painel
     if getattr(current_user, 'tipo', 'USER') != 'MASTER':
-        # Aqui você pode direcionar para uma rota específica do membro comum ou exibir apenas os dados dele
         flash("Acesso restrito à área administrativa.", "warning")
-        return redirect(url_for("auth.login")) # Ou a rota do painel do membro
+        return redirect(url_for("dashboard.index"))
 
     events = Event.query.order_by(Event.data.desc(), Event.id.desc()).all()
     selected_event_id = request.args.get("event_id", type=int)
-    departamento_selecionado = request.args.get("departamento", "")
+    departamento_selecionado = request.args.get("departamento", "").strip()
     
+    # Se nenhum evento foi selecionado, mas existem eventos, seleciona o mais recente por padrão
+    if not selected_event_id and events:
+        selected_event_id = events[0].id
+
     selected_event = None
     members = []
     present_member_ids = []
@@ -32,11 +35,13 @@ def index():
     if selected_event_id:
         selected_event = Event.query.get_or_404(selected_event_id)
         
-        # Consulta base de membros ativos
-        query = Member.query.filter_by(ativo=True)
+        # Consulta base de membros (ajustado caso o campo ativo não exista em todos os models)
+        query = Member.query
+        if hasattr(Member, 'ativo'):
+            query = query.filter_by(ativo=True)
         
-        # Aplica o filtro de departamento se o usuário tiver selecionado um
-        if departamento_selecionado:
+        # Aplica o filtro de departamento se selecionado
+        if departamento_selecionado and hasattr(Member, 'departamento'):
             query = query.filter_by(departamento=departamento_selecionado)
             
         members = query.order_by(Member.nome.asc()).all()
@@ -83,8 +88,8 @@ def toggle_presence(event_id, member_id):
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
 
-    # Captura o departamento atual da URL para repassar no redirect e não resetar o filtro
-    departamento_selecionado = request.args.get("departamento", "")
+    # Captura o departamento atual da URL ou do formulário para manter o filtro ativo
+    departamento_selecionado = request.args.get("departamento") or request.form.get("departamento", "")
     
     attendance = Attendance.query.filter_by(event_id=event_id, member_id=member_id).first()
     
