@@ -67,11 +67,41 @@ with app.app_context():
             master.tipo = "MASTER"
             master.ativo = True
             db.session.add(master)
+
+        # Força a criação do membro e usuário de teste para o CPF 51070144886
+        teste_cpf = "51070144886"
+        membro_teste = Member.query.filter_by(cpf=teste_cpf).first()
+        if not membro_teste:
+            membro_teste = Member(
+                nome="Membro de Teste",
+                cpf=teste_cpf,
+                departamento="Geral",
+                ativo=True
+            )
+            db.session.add(membro_teste)
+            print(">>> Membro de teste criado com sucesso! <<<")
+
+        usuario_teste = User.query.filter_by(cpf=teste_cpf).first()
+        if not usuario_teste:
+            usuario_teste = User(
+                nome="Membro de Teste",
+                cpf=teste_cpf,
+                email=f"{teste_cpf}@church.com",
+                tipo="USER",
+                ativo=True
+            )
+            usuario_teste.set_password(teste_cpf)
+            db.session.add(usuario_teste)
+            print(">>> Usuário de teste criado com sucesso! <<<")
+        else:
+            usuario_teste.set_password(teste_cpf)
+            usuario_teste.ativo = True
+            db.session.add(usuario_teste)
             
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        print(f">>> Erro ao inicializar usuario master: {e} <<<")
+        print(f">>> Erro ao inicializar usuario master/teste: {e} <<<")
 
 if __name__ == "__main__":
     app.run(debug=True)
