@@ -64,7 +64,7 @@
             margin-bottom: 8px;
         }
 
-        .form-control {
+        .form-control, .form-select {
             border-radius: 8px;
             border: 1px solid #cbd5e1;
             padding: 12px 16px;
@@ -72,7 +72,7 @@
             color: #1e293b;
         }
 
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: #0f172a;
             box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
         }
@@ -137,9 +137,21 @@
                     <input type="text" class="form-control" id="cpf" name="cpf" value="{{ member.cpf if member else '' }}" required placeholder="Apenas números ou formatado">
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
                     <label for="telefone" class="form-label">Telefone / WhatsApp</label>
                     <input type="text" class="form-control" id="telefone" name="telefone" value="{{ member.telefone if member else '' }}" placeholder="(00) 00000-0000">
+                </div>
+
+                <div class="mb-4">
+                    <label for="departamento" class="form-label">Departamento</label>
+                    <select class="form-select" id="departamento" name="departamento" required>
+                        <option value="">-- Selecione o Departamento --</option>
+                        <option value="Infantil" {{ 'selected' if member and member.departamento == 'Infantil' else '' }}>Infantil</option>
+                        <option value="Adolescentes" {{ 'selected' if member and member.departamento == 'Adolescentes' else '' }}>Adolescentes</option>
+                        <option value="Jovens" {{ 'selected' if member and member.departamento == 'Jovens' else '' }}>Jovens</option>
+                        <option value="Adultos" {{ 'selected' if member and member.departamento == 'Adultos' else '' }}>Adultos</option>
+                        <option value="Geral" {{ 'selected' if member and member.departamento == 'Geral' else '' }}>Geral</option>
+                    </select>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
