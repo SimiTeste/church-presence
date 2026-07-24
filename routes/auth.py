@@ -1,6 +1,6 @@
 import re
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required
 from models import db
 from models.user import User
 from models.member import Member
@@ -19,46 +19,44 @@ def login():
             flash('Informe o CPF.', 'danger')
             return render_template('login.html')
 
-        # 1. Verifica se é o Master
+        # 1. Se for o Administrador Master
         if cpf_limpo == "00000000000":
             master = User.query.filter_by(cpf="00000000000").first()
             if master and master.check_password(senha):
                 login_user(master)
                 return redirect(url_for('dashboard.index'))
-
-        # 2. Busca na tabela User
-        user = User.query.filter_by(cpf=cpf_limpo).first()
-
-        # 3. Se não existe em User mas existe em Member, cria o usuário automaticamente agora
-        if not user:
-            membro = Member.query.filter_by(cpf=cpf_limpo).first()
-            if membro:
-                user = User(
-                    nome=membro.nome,
-                    cpf=cpf_limpo,
-                    email=f"{cpf_limpo}@church.com",
-                    tipo="USER",
-                    ativo=True
-                )
-                user.set_password(cpf_limpo)
-                db.session.add(user)
-                db.session.commit()
-
-        # 4. Valida se o usuário existe e se a senha confere (ou se a senha é o próprio CPF)
-        if user and (user.check_password(senha) or senha == cpf_limpo):
-            if not getattr(user, 'ativo', True):
-                flash('Sua conta está desativada. Procure o Administrador.', 'danger')
-                return redirect(url_for('auth.login'))
-
-            login_user(user)
-            
-            # Redireciona usuários comuns para a tela de presença/perfil
-            if user.tipo == 'MASTER':
-                return redirect(url_for('dashboard.index'))
             else:
-                return redirect(url_for('presence.index'))
-        else:
+                flash('CPF ou senha incorretos.', 'danger')
+                return render_template('login.html')
+
+        # 2. Verifica se o CPF existe na tabela de Membros
+        membro = Member.query.filter_by(cpf=cpf_limpo).first()
+        if not membro:
             flash('CPF ou senha incorretos.', 'danger')
+            return render_template('login.html')
+
+        # 3. Se o membro existe, busca ou cria o usuário correspondente
+        user = User.query.filter_by(cpf=cpf_limpo).first()
+        if not user:
+            user = User(
+                nome=membro.nome,
+                cpf=cpf_limpo,
+                email=f"{cpf_limpo}@church.com",
+                tipo="USER",
+                ativo=True
+            )
+            user.set_password(cpf_limpo)
+            db.session.add(user)
+            db.session.commit()
+        else:
+            # Garante que a senha e o status estejam corretos para o membro logar
+            user.set_password(cpf_limpo)
+            user.ativo = True
+            db.session.commit()
+
+        # 4. Efetua o login do usuário comum
+        login_user(user)
+        return redirect(url_for('presence.index'))
 
     return render_template('login.html')
 
