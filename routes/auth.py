@@ -19,10 +19,17 @@ def login():
             flash('Informe o CPF.', 'danger')
             return render_template('login.html')
 
-        # 1. Tenta achar o usuario na tabela User
+        # 1. Verifica se é o Master
+        if cpf_limpo == "00000000000":
+            master = User.query.filter_by(cpf="00000000000").first()
+            if master and master.check_password(senha):
+                login_user(master)
+                return redirect(url_for('dashboard.index'))
+
+        # 2. Busca na tabela User
         user = User.query.filter_by(cpf=cpf_limpo).first()
 
-        # 2. Se nao existe na tabela User, mas existe na tabela Member, cria o User agora
+        # 3. Se não existe em User mas existe em Member, cria o usuário automaticamente agora
         if not user:
             membro = Member.query.filter_by(cpf=cpf_limpo).first()
             if membro:
@@ -37,14 +44,15 @@ def login():
                 db.session.add(user)
                 db.session.commit()
 
-        # 3. Valida o login (Master ou senha igual ao CPF ou senha cadastrada)
-        if user and (user.check_password(senha) or senha == cpf_limpo or user.tipo == 'MASTER'):
+        # 4. Valida se o usuário existe e se a senha confere (ou se a senha é o próprio CPF)
+        if user and (user.check_password(senha) or senha == cpf_limpo):
             if not getattr(user, 'ativo', True):
                 flash('Sua conta está desativada. Procure o Administrador.', 'danger')
                 return redirect(url_for('auth.login'))
 
             login_user(user)
             
+            # Redireciona usuários comuns para a tela de presença/perfil
             if user.tipo == 'MASTER':
                 return redirect(url_for('dashboard.index'))
             else:
