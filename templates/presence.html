@@ -197,6 +197,7 @@
                         <thead>
                             <tr>
                                 <th>Nome do Membro</th>
+                                <th style="width: 200px;">Departamento</th>
                                 <th class="text-center" style="width: 220px;">Status de Presença</th>
                             </tr>
                         </thead>
@@ -205,6 +206,11 @@
                                 {% for member in members %}
                                 <tr>
                                     <td class="fw-semibold text-dark">{{ member.nome }}</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border px-2 py-1">
+                                            {{ member.departamento if member.departamento else 'Não definido' }}
+                                        </span>
+                                    </td>
                                     <td class="text-center">
                                         {% set is_present = member.id in present_member_ids %}
                                         <form action="{{ url_for('presence.toggle_presence', event_id=selected_event.id, member_id=member.id, departamento=departamento_selecionado) }}" method="POST" class="d-inline">
@@ -223,7 +229,7 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted py-4">Nenhum membro ativo encontrado com os filtros selecionados.</td>
+                                    <td colspan="3" class="text-center text-muted py-4">Nenhum membro ativo encontrado com os filtros selecionados.</td>
                                 </tr>
                             {% endif %}
                         </tbody>
