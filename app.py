@@ -13,7 +13,7 @@ from routes.dashboard import dashboard_bp
 from routes.members import members_bp
 from routes.presence import presence_bp
 from routes.reports import reports_bp
-from routes.user_dashboard import user_dashboard_bp  # <--- ADICIONADO AQUI
+from routes.user_dashboard import user_dashboard_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -41,7 +41,7 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(members_bp)
 app.register_blueprint(presence_bp)
 app.register_blueprint(reports_bp)
-app.register_blueprint(user_dashboard_bp)  # <--- ADICIONADO AQUI
+app.register_blueprint(user_dashboard_bp)
 
 # Rota raiz para evitar erro 404 ao acessar o link principal
 @app.route('/')
