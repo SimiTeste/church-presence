@@ -1,37 +1,133 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Church Presence</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Login - Ad Brás Jardim Califórnia</title>
+    <!-- Bootstrap CSS v5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h3 {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #334155;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+
+        .btn-primary-custom {
+            background-color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px;
+            width: 100%;
+            font-size: 15px;
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: #1e293b;
+        }
+
+        .alert {
+            border-radius: 8px;
+            font-size: 13px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
+
+    <div class="login-card">
         <div class="login-header">
-            <h2>Church Presence</h2>
-            <p>Acesse com suas credenciais</p>
+            <h3>Ad Brás - Jardim Califórnia</h3>
+            <p>Sistema de Chamadas e Presença</p>
         </div>
 
+        <!-- Exibição de mensagens flash (erros ou avisos) -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('auth.login') }}" method="POST">
-            <div class="form-group">
-                <label for="cpf">CPF</label>
-                <input type="text" id="cpf" name="cpf" placeholder="Apenas números" required autocomplete="off">
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="mb-3">
+                <label for="cpf" class="form-label">CPF</label>
+                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Apenas números" required autofocus>
             </div>
-            <div class="form-group">
-                <label for="senha">Senha</label>
-                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+
+            <div class="mb-4">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
             </div>
-            <button type="submit" class="btn-primary">Entrar</button>
+
+            <button type="submit" class="btn btn-primary-custom">Entrar</button>
         </form>
     </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

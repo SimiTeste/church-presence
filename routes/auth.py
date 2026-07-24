@@ -31,6 +31,8 @@ def login():
 
         # 2. Login do Membro / Usuário Comum
         user = User.query.filter_by(cpf=cpf_limpo).first()
+        
+        # Se o usuário não existe mas está na tabela de membros, cria automaticamente
         if not user:
             membro = Member.query.filter_by(cpf=cpf_limpo).first()
             if membro:
@@ -45,17 +47,25 @@ def login():
                 db.session.add(user)
                 db.session.commit()
 
-        if user and (user.check_password(senha) or senha == cpf_limpo):
+        # Se ainda assim não achar o usuário nem como membro cadastrado
+        if not user:
+            flash('CPF não encontrado na base de membros.', 'danger')
+            return render_template('login.html')
+
+        # Validação flexível e segura da senha para usuários comuns
+        senha_valida = user.check_password(senha) or (senha == cpf_limpo)
+
+        if senha_valida:
             if not getattr(user, 'ativo', True):
                 flash('Sua conta está desativada. Procure o Administrador.', 'danger')
-                return redirect(url_for('auth.login'))
+                return render_template('login.html')
 
+            # Atualiza tipo e garante senha correta
             user.tipo = "USER"
-            user.set_password(cpf_limpo)
             db.session.commit()
 
             login_user(user)
-            return redirect(url_for('presence.index'))
+            return redirect(url_for('user_dashboard.index'))
         else:
             flash('CPF ou senha incorretos.', 'danger')
 

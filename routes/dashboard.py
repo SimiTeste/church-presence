@@ -12,7 +12,6 @@ def index():
     # 🔒 Se não for MASTER, exibe o painel do usuário comum
     if getattr(current_user, 'tipo', None) != 'MASTER':
         
-        # --- CORREÇÃO AQUI ---
         # Busca o membro real vinculado ao usuário logado (pelo CPF ou Nome)
         membro_vinculado = None
         if hasattr(current_user, 'cpf') and current_user.cpf:
@@ -24,7 +23,6 @@ def index():
             
         # Se achou o membro, usa o ID real dele. Se não, usa o fallback.
         real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', current_user.id)
-        # ---------------------
         
         # 1. Busca as presenças individuais do usuário
         presencas_usuario = Attendance.query.filter_by(member_id=real_member_id).join(Event).order_by(Event.data.desc()).all()
@@ -39,20 +37,18 @@ def index():
 
         total_presencas_usuario = len(dias_comparecidos)
 
-        # --- NOVO: Cálculo de Faltas ---
+        # --- Cálculo de Faltas ---
         total_ebds_geral = Event.query.count()
         total_faltas_usuario = total_ebds_geral - total_presencas_usuario
         
-        # Prevenção: garante que faltas não fiquem negativas caso haja erro de registro
         if total_faltas_usuario < 0:
             total_faltas_usuario = 0 
-        # -------------------------------
 
         # 2. Calcula o Ranking Geral com Nomes e Departamentos
         ranking_dados = db.session.query(
             Member.id,
             Member.nome,
-            Member.departamento, # <-- Busca o departamento
+            Member.departamento,
             db.func.count(Attendance.id).label('total')
         ).join(Attendance, Member.id == Attendance.member_id).group_by(Member.id).order_by(db.desc('total')).all()
 
@@ -63,10 +59,9 @@ def index():
             ranking_completo.append({
                 "posicao": index,
                 "nome": item.nome,
-                "departamento": item.departamento if item.departamento else "-", # <-- Adiciona o departamento ao dicionário
+                "departamento": item.departamento if item.departamento else "-",
                 "total": item.total
             })
-            # Usa o ID real corrigido para definir a posição no cartão
             if item.id == real_member_id:
                 posicao_usuario = index
 
@@ -75,7 +70,7 @@ def index():
             user=current_user,
             dias_comparecidos=dias_comparecidos,
             total_presencas=total_presencas_usuario,
-            total_faltas=total_faltas_usuario, # <-- Nova variável enviada para o Front-end
+            total_faltas=total_faltas_usuario,
             posicao=posicao_usuario,
             ranking_completo=ranking_completo
         )

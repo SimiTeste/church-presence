@@ -1,7 +1,7 @@
 import csv
 from io import StringIO
-from flask import Blueprint, render_template, Response
-from flask_login import login_required
+from flask import Blueprint, render_template, Response, abort
+from flask_login import login_required, current_user
 from models.member import Member
 from models.attendance import Event, Attendance
 
@@ -10,6 +10,10 @@ reports_bp = Blueprint("reports", __name__)
 @reports_bp.route("/reports")
 @login_required
 def index():
+    # 🔒 Bloqueia usuários comuns para garantir que apenas o MASTER veja os relatórios gerais
+    if getattr(current_user, 'tipo', None) != 'MASTER':
+        abort(403)
+
     members = Member.query.filter_by(ativo=True).all()
     total_ebds = Event.query.count()
     
@@ -35,6 +39,10 @@ def index():
 @reports_bp.route("/reports/export_csv")
 @login_required
 def export_csv():
+    # 🔒 Bloqueia usuários comuns na exportação de dados sensíveis
+    if getattr(current_user, 'tipo', None) != 'MASTER':
+        abort(403)
+
     si = StringIO()
     cw = csv.writer(si)
     
