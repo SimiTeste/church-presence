@@ -1,3 +1,4 @@
+import datetime
 from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 from models.member import Member
@@ -5,12 +6,27 @@ from models.attendance import Event, Attendance
 
 user_dashboard_bp = Blueprint("user_dashboard", __name__)
 
+def get_daily_quote():
+    quotes = [
+        "Dedicação e constância transformam o aprendizado em sabedoria.",
+        "Cada aula da EBD é uma semente plantada para o crescimento espiritual.",
+        "A fidelidade nas pequenas coisas prepara você para grandes propósitos.",
+        "Crescer em comunhão e conhecimento é o caminho para uma vida plena.",
+        "Sua presença faz a diferença na nossa comunidade de fé.",
+        "O conhecimento da Palavra ilumina os passos e fortalece a jornada.",
+        "Construir um futuro sólido começa com o aprendizado diário."
+    ]
+    day_of_year = datetime.date.today().timetuple().tm_yday
+    return quotes[day_of_year % len(quotes)]
+
 @user_dashboard_bp.route("/user/dashboard")
 @login_required
 def index():
     # Garante que administradores/master usam o painel administrativo dedicado
     if getattr(current_user, 'tipo', None) == 'MASTER':
         return abort(403)
+
+    frase_motivacional = get_daily_quote()
 
     # Tenta encontrar o membro vinculado pelo CPF do usuário logado
     membro = Member.query.filter_by(cpf=current_user.cpf).first()
@@ -26,7 +42,8 @@ def index():
             total_presencas=0,
             total_faltas=total_ebds,
             dias_comparecidos=[],
-            ranking_completo=[]
+            ranking_completo=[],
+            frase_motivacional=frase_motivacional
         )
 
     # Busca presenças do membro
@@ -76,5 +93,6 @@ def index():
         total_presencas=total_presencas,
         total_faltas=total_faltas,
         dias_comparecidos=dias_comparecidos,
-        ranking_completo=ranking_completo
+        ranking_completo=ranking_completo,
+        frase_motivacional=frase_motivacional
     )
