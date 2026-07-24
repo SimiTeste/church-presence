@@ -1,6 +1,6 @@
 import csv
 from io import StringIO
-from flask import Blueprint, render_template, Response, abort
+from flask import Blueprint, render_template, Response, abort, request
 from flask_login import login_required, current_user
 from models.member import Member
 from models.attendance import Event, Attendance
@@ -14,7 +14,14 @@ def index():
     if getattr(current_user, 'tipo', None) != 'MASTER':
         abort(403)
 
-    members = Member.query.filter_by(ativo=True).all()
+    departamento_selecionado = request.args.get('departamento')
+
+    # Consulta base filtrando por ativos e opcionalmente por departamento
+    query = Member.query.filter_by(ativo=True)
+    if departamento_selecionado:
+        query = query.filter_by(departamento=departamento_selecionado)
+        
+    members = query.all()
     total_ebds = Event.query.count()
     
     relatorio_membros = []
@@ -34,7 +41,9 @@ def index():
     # Ordena do MAIOR para o MENOR número de presenças (Ranking)
     ranking_membros = sorted(relatorio_membros, key=lambda x: (x["presencas"], x["porcentagem"]), reverse=True)
 
-    return render_template("reports.html", relatorio_membros=ranking_membros)
+    return render_template("reports.html", 
+                           relatorio_membros=ranking_membros, 
+                           departamento_selecionado=departamento_selecionado)
 
 @reports_bp.route("/reports/export_csv")
 @login_required
@@ -43,13 +52,19 @@ def export_csv():
     if getattr(current_user, 'tipo', None) != 'MASTER':
         abort(403)
 
+    departamento_selecionado = request.args.get('departamento')
+
     si = StringIO()
     cw = csv.writer(si)
     
     # Cabeçalho do CSV
     cw.writerow(["Nome", "Departamento", "Presencas", "Total EBDs", "Assiduidade (%)"])
     
-    members = Member.query.filter_by(ativo=True).order_by(Member.nome.asc()).all()
+    query = Member.query.filter_by(ativo=True)
+    if departamento_selecionado:
+        query = query.filter_by(departamento=departamento_selecionado)
+        
+    members = query.order_by(Member.nome.asc()).all()
     total_ebds = Event.query.count()
     
     for member in members:
@@ -58,8 +73,10 @@ def export_csv():
         cw.writerow([member.nome, member.departamento, presencas, total_ebds, f"{porcentagem}%"])
         
     output = si.getvalue()
+    filename = f"relatorio_frequencia_{departamento_selecionado.lower()}.csv" if departamento_selecionado else "relatorio_frequencia_ebd.csv"
+    
     return Response(
         output,
         mimetype="text/csv",
-        headers={"Content-Disposition": "attachment;filename=relatorio_frequencia_ebd.csv"}
+        headers={"Content-Disposition": f"attachment;filename={filename}"}
     )
