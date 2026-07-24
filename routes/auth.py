@@ -19,7 +19,7 @@ def login():
             flash('Informe o CPF.', 'danger')
             return render_template('login.html')
 
-        # 1. Validação exclusiva do Administrador Master
+        # 1. Login do Administrador Master
         if cpf_limpo == "00000000000":
             master = User.query.filter_by(cpf="00000000000").first()
             if master and master.check_password(senha):
@@ -29,7 +29,7 @@ def login():
                 flash('CPF ou senha incorretos.', 'danger')
                 return render_template('login.html')
 
-        # 2. Busca o usuário comum ou membro
+        # 2. Login do Membro / Usuário Comum
         user = User.query.filter_by(cpf=cpf_limpo).first()
         if not user:
             membro = Member.query.filter_by(cpf=cpf_limpo).first()
@@ -50,7 +50,6 @@ def login():
                 flash('Sua conta está desativada. Procure o Administrador.', 'danger')
                 return redirect(url_for('auth.login'))
 
-            # Garante que NUNCA um usuário comum seja tratado como master
             user.tipo = "USER"
             user.set_password(cpf_limpo)
             db.session.commit()
