@@ -42,6 +42,10 @@ def register():
         
         perfil_nome = "Líder" if tipo == "LIDER" else "Liderado"
         flash(f'Usuário cadastrado com sucesso como {perfil_nome}!', 'success')
+        
+        # Redirecionamento inteligente após registro
+        if tipo in ["LIDER", "MASTER"]:
+            return redirect(url_for('leader.dashboard'))
         return redirect(url_for('dashboard.index'))
         
     return render_template('register.html')
@@ -63,7 +67,7 @@ def login():
             master = User.query.filter_by(cpf="00000000000").first()
             if master and master.check_password(senha):
                 login_user(master)
-                return redirect(url_for('dashboard.index'))
+                return redirect(url_for('leader.dashboard')) # CORRIGIDO AQUI PARA IR DIRETO AO PAINEL DO LÍDER/MASTER
             else:
                 flash('CPF ou senha incorretos.', 'danger')
                 return render_template('login.html')
@@ -101,9 +105,9 @@ def login():
 
             login_user(user)
             
-            # Redirecionamento inteligente: Se for LIDER ou MASTER, vai para o dashboard principal
+            # Redirecionamento inteligente: Se for LIDER ou MASTER, vai para o dashboard do líder com as chamadas
             if user.tipo == "LIDER" or user.tipo == "MASTER":
-                return redirect(url_for('dashboard.index'))
+                return redirect(url_for('leader.dashboard'))
             else:
                 return redirect(url_for('user_dashboard.index'))
         else:
