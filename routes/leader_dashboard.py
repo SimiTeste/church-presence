@@ -95,22 +95,17 @@ def chamada(event_id):
     presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
     
     if request.method == 'POST':
-        # Percorre os membros que estavam visíveis na tela no momento do envio
+        # Atualiza apenas os membros que estavam listados na tela atual (considerando o filtro)
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
             
-            # Se o checkbox está marcado no formulário
-            if nome_campo in request.form:
-                status = True
-            else:
-                # Se o checkbox não veio no form, foi desmarcado pelo líder
-                status = False
-                
+            # Se o checkbox foi marcado, o campo vem no form. Se foi desmarcado, não vem.
+            status = True if nome_campo in request.form else False
+            
             att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
             if att:
                 att.presente = status
             else:
-                # Cria o registro apenas se o status for True (ou se preferir registrar o False também)
                 att = Attendance(event_id=evento.id, member_id=membro.id, presente=status)
                 db.session.add(att)
         
