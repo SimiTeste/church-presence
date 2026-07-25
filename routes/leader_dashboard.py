@@ -45,6 +45,7 @@ def criar_aviso():
     flash('Aviso enviado com sucesso!', 'success')
     return redirect(url_for('leader.dashboard'))
 
+@leader_bp.route('/leader/chamada', defaults={'event_id': None}, methods=['GET', 'POST'])
 @leader_bp.route('/leader/chamada/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def chamada(event_id):
@@ -52,8 +53,16 @@ def chamada(event_id):
         flash('Acesso negado.', 'danger')
         return redirect(url_for('auth.login'))
         
-    evento = Event.query.get_or_404(event_id)
     eventos = Event.query.order_by(Event.data.desc()).all()
+    
+    if not eventos:
+        flash('Nenhum evento cadastrado.', 'warning')
+        return redirect(url_for('leader.dashboard'))
+        
+    if event_id is None:
+        return redirect(url_for('leader.chamada', event_id=eventos[0].id))
+        
+    evento = Event.query.get_or_404(event_id)
     
     departamento_filtro = request.args.get('departamento', '')
     
