@@ -8,10 +8,6 @@ from sqlalchemy import func
 
 leader_bp = Blueprint('leader', __name__)
 
-def check_access():
-    # Permite acesso para MASTER, LIDER e USUARIO/COMUM conforme necessário nas rotas
-    return current_user.is_authenticated and current_user.tipo in ["MASTER", "LIDER", "COMUM", "USUARIO"]
-
 @leader_bp.route('/leader/dashboard')
 @login_required
 def dashboard():
@@ -22,7 +18,6 @@ def dashboard():
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
     
-    # Consulta para montar o ranking de presenças dos membros ativos
     ranking_membros = db.session.query(
         Member, 
         func.count(Attendance.id).label('total_presencas')
@@ -67,7 +62,6 @@ def criar_aviso():
 @leader_bp.route('/leader/chamada/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def chamada(event_id):
-    # Garante permissão abrangente para Master, Líder e Usuário Comum que realizam chamada
     if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER", "COMUM", "USUARIO"]:
         flash('Acesso negado.', 'danger')
         return redirect(url_for('auth.login'))
@@ -83,12 +77,10 @@ def chamada(event_id):
         
     evento = Event.query.get_or_404(event_id)
     
-    # Captura o departamento da URL (GET) ou do campo oculto do formulário (POST)
     departamento_filtro = request.args.get('departamento', '')
     if request.method == 'POST':
         departamento_filtro = request.form.get('departamento_atual', '')
 
-    # Membros exibidos na tabela conforme o filtro atual
     query = Member.query.filter_by(ativo=True)
     if departamento_filtro:
         query = query.filter_by(departamento=departamento_filtro)
@@ -98,10 +90,18 @@ def chamada(event_id):
     departamentos = [d[0] for d in departamentos if d[0]]
     
     if request.method == 'POST':
-        # Atualiza APENAS os membros listados na tela no momento do salvamento (respeitando o filtro)
+        # Atualiza APENAS os membros que estavam renderizados e submetidos na tela atual
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
-            status = nome_campo in request.form
+            
+            # Identifica explicitamente se o campo veio no envio do form daquela linha específica
+            if nome_campo in request.form:
+                status = True if request.form.get(nome_campo) in ['true', 'on', '1', 'True'] else True
+            else:
+                # Se o checkbox estava na tela mas foi desmarcado, ele é False. 
+                # Se ele nem estava na tela (devido ao filtro), nós NÃO mexemos nele para preservar os outros departamentos!
+                # Como o loop roda sobre 'membros' da tela atual, quem está na tela visível é atualizado corretamente:
+                status = False
             
             att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
             if att:
