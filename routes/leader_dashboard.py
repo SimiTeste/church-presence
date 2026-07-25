@@ -66,6 +66,7 @@ def chamada(event_id):
     
     departamento_filtro = request.args.get('departamento', '')
     
+    # Membros exibidos na tabela conforme o filtro
     query = Member.query.filter_by(ativo=True)
     if departamento_filtro:
         query = query.filter_by(departamento=departamento_filtro)
@@ -77,19 +78,34 @@ def chamada(event_id):
     presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
     
     if request.method == 'POST':
-        for membro in membros:
-            status = request.form.get(f'presente_{membro.id}') == 'on'
-            
-            att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
-            if att:
-                att.presente = status
+        # Buscamos todos os membros ativos para garantir que a alteração da tela atual seja salva com precisão
+        todos_membros = Member.query.filter_by(ativo=True).all()
+        
+        for membro in todos_membros:
+            # Só atualiza os membros que faziam parte da exibição daquele momento no formulário
+            nome_campo = f'presente_{membro.id}'
+            if nome_campo in request.form:
+                status = True
+                att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
+                if att:
+                    att.presente = status
+                else:
+                    att = Attendance(event_id=evento.id, member_id=membro.id, presente=status)
+                    db.session.add(att)
             else:
-                att = Attendance(event_id=evento.id, member_id=membro.id, presente=status)
-                db.session.add(att)
+                # Se o campo estava na tela filtrada mas foi desmarcado, atualizamos para False
+                if departamento_filtro and membro.departamento == departamento_filtro:
+                    att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
+                    if att:
+                        att.presente = False
+                elif not departamento_filtro:
+                    att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
+                    if att:
+                        att.presente = False
         
         db.session.commit()
         flash('Chamada salva com sucesso!', 'success')
-        return redirect(url_for('leader.chamada', event_id=evento.id))
+        return redirect(url_for('leader.chamada', event_id=evento.id, departamento=departamento_filtro))
         
     return render_template(
         'realizar_chamada.html', 
