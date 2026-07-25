@@ -12,6 +12,7 @@ class Member(db.Model):
     telefone = db.Column(db.String(20), nullable=True)
     foto = db.Column(db.String(255), default='default.png')
     departamento = db.Column(db.String(50), default='Geral')
+    tipo = db.Column(db.String(20), default='USER')  # <--- ADICIONE ESTA LINHA AQUI
     sexo = db.Column(db.String(10), nullable=True)
     ativo = db.Column(db.Boolean, default=True)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
