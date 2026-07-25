@@ -15,7 +15,7 @@ def check_leader():
 def dashboard():
     if not check_leader():
         flash('Acesso negado. Área restrita para líderes.', 'danger')
-        return redirect(url_for('members.index'))
+        return redirect(url_for('dashboard.index'))
         
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
