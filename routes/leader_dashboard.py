@@ -8,14 +8,15 @@ from sqlalchemy import func
 
 leader_bp = Blueprint('leader', __name__)
 
-def check_leader():
-    return current_user.is_authenticated and current_user.tipo in ["LIDER", "MASTER"]
+def check_access():
+    # Permite acesso para MASTER, LIDER e USUARIO/COMUM conforme necessário nas rotas
+    return current_user.is_authenticated and current_user.tipo in ["MASTER", "LIDER", "COMUM", "USUARIO"]
 
 @leader_bp.route('/leader/dashboard')
 @login_required
 def dashboard():
-    if not check_leader():
-        flash('Acesso negado. Área restrita para líderes.', 'danger')
+    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+        flash('Acesso negado. Área restrita.', 'danger')
         return redirect(url_for('dashboard.index'))
         
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
@@ -41,7 +42,7 @@ def dashboard():
 @leader_bp.route('/leader/avisos/novo', methods=['POST'])
 @login_required
 def criar_aviso():
-    if not check_leader():
+    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
         flash('Acesso negado.', 'danger')
         return redirect(url_for('auth.login'))
         
@@ -66,7 +67,8 @@ def criar_aviso():
 @leader_bp.route('/leader/chamada/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def chamada(event_id):
-    if not check_leader():
+    # Garante permissão abrangente para Master, Líder e Usuário Comum que realizam chamada
+    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER", "COMUM", "USUARIO"]:
         flash('Acesso negado.', 'danger')
         return redirect(url_for('auth.login'))
         
@@ -86,7 +88,7 @@ def chamada(event_id):
     if request.method == 'POST':
         departamento_filtro = request.form.get('departamento_atual', '')
 
-    # Membros exibidos na tabela conforme o filtro
+    # Membros exibidos na tabela conforme o filtro atual
     query = Member.query.filter_by(ativo=True)
     if departamento_filtro:
         query = query.filter_by(departamento=departamento_filtro)
@@ -96,12 +98,10 @@ def chamada(event_id):
     departamentos = [d[0] for d in departamentos if d[0]]
     
     if request.method == 'POST':
-        # Percorre estritamente os membros que estavam visíveis na listagem da tela no momento do envio
+        # Atualiza APENAS os membros listados na tela no momento do salvamento (respeitando o filtro)
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
-            
-            # O checkbox envia o nome se estiver marcado. Se estiver desmarcado, não vem no request.form.
-            status = True if nome_campo in request.form else False
+            status = nome_campo in request.form
             
             att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
             if att:
