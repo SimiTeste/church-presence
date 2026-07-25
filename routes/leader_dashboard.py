@@ -53,9 +53,18 @@ def chamada(event_id):
         return redirect(url_for('auth.login'))
         
     evento = Event.query.get_or_404(event_id)
-    membros = Member.query.filter_by(ativo=True).all()
+    eventos = Event.query.order_by(Event.data.desc()).all()
     
-    # Mapeamento seguro para evitar erro 500 no template
+    departamento_filtro = request.args.get('departamento', '')
+    
+    query = Member.query.filter_by(ativo=True)
+    if departamento_filtro:
+        query = query.filter_by(departamento=departamento_filtro)
+    membros = query.all()
+    
+    departamentos = db.session.query(Member.departamento).filter(Member.departamento != '').distinct().all()
+    departamentos = [d[0] for d in departamentos if d[0]]
+    
     presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
     
     if request.method == 'POST':
@@ -71,6 +80,14 @@ def chamada(event_id):
         
         db.session.commit()
         flash('Chamada salva com sucesso!', 'success')
-        return redirect(url_for('leader.dashboard'))
+        return redirect(url_for('leader.chamada', event_id=evento.id))
         
-    return render_template('realizar_chamada.html', evento=evento, membros=membros, presencas_atuais=presencas_atuais)
+    return render_template(
+        'realizar_chamada.html', 
+        evento=evento, 
+        eventos=eventos,
+        membros=membros, 
+        presencas_atuais=presencas_atuais,
+        departamentos=departamentos,
+        departamento_filtro=departamento_filtro
+    )
