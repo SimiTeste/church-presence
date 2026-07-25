@@ -142,7 +142,7 @@
                     <input type="text" class="form-control" id="telefone" name="telefone" value="{{ member.telefone if member else '' }}" placeholder="(00) 00000-0000">
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
                     <label for="departamento" class="form-label">Departamento</label>
                     <select class="form-select" id="departamento" name="departamento" required>
                         <option value="">-- Selecione o Departamento --</option>
@@ -151,6 +151,15 @@
                         <option value="Jovens" {{ 'selected' if member and member.departamento == 'Jovens' else '' }}>Jovens</option>
                         <option value="Adultos" {{ 'selected' if member and member.departamento == 'Adultos' else '' }}>Adultos</option>
                         <option value="Geral" {{ 'selected' if member and member.departamento == 'Geral' else '' }}>Geral</option>
+                    </select>
+                </div>
+
+                <!-- CAMPO TIPO DE PERFIL ADICIONADO -->
+                <div class="mb-4">
+                    <label for="tipo" class="form-label">Tipo de Perfil</label>
+                    <select class="form-select" id="tipo" name="tipo" required>
+                        <option value="USER" {{ 'selected' if member and member.tipo == 'USER' else '' }}>Liderado (Membro)</option>
+                        <option value="LIDER" {{ 'selected' if member and member.tipo == 'LIDER' else '' }}>Líder</option>
                     </select>
                 </div>
 
