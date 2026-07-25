@@ -90,11 +90,7 @@
                                 <td class="text-center">
                                     <div class="form-check d-inline-block">
                                         <input type="checkbox" name="presente_{{ membro.id }}" class="form-check-input" style="width: 20px; height: 20px; cursor: pointer;"
-                                            {% if evento.attendances %}
-                                                {% for att in evento.attendances %}
-                                                    {% if att.member_id == membro.id and att.presente %}checked{% endif %}
-                                                {% endfor %}
-                                            {% endif %}>
+                                            {% if presencas_atuais.get(membro.id) %}checked{% endif %}>
                                     </div>
                                 </td>
                             </tr>

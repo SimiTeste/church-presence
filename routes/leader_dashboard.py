@@ -55,6 +55,9 @@ def chamada(event_id):
     evento = Event.query.get_or_404(event_id)
     membros = Member.query.filter_by(ativo=True).all()
     
+    # Mapeamento seguro para evitar erro 500 no template
+    presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
+    
     if request.method == 'POST':
         for membro in membros:
             status = request.form.get(f'presente_{membro.id}') == 'on'
@@ -70,4 +73,4 @@ def chamada(event_id):
         flash('Chamada salva com sucesso!', 'success')
         return redirect(url_for('leader.dashboard'))
         
-    return render_template('realizar_chamada.html', evento=evento, membros=membros)
+    return render_template('realizar_chamada.html', evento=evento, membros=membros, presencas_atuais=presencas_atuais)
