@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Realizar Chamada - {{ evento.nome }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow-sm p-4 bg-white">
+            <h2 class="mb-3">📝 Chamada: {{ evento.nome }}</h2>
+            <p class="text-muted">Marque os membros presentes neste evento:</p>
+            
+            <form method="POST">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome do Membro</th>
+                                <th>Departamento</th>
+                                <th class="text-center" style="width: 150px;">Presente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for membro in membros %}
+                            <tr>
+                                <td class="fw-bold">{{ membro.nome }}</td>
+                                <td>{{ membro.departamento or 'Geral' }}</td>
+                                <td class="text-center">
+                                    <div class="form-check d-inline-block">
+                                        <input type="checkbox" name="presente_{{ membro.id }}" class="form-check-input" style="transform: scale(1.4);">
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">💾 Salvar Chamada</button>
+                    <a href="{{ url_for('leader.dashboard') }}" class="btn btn-secondary btn-lg ms-2">Voltar ao Painel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

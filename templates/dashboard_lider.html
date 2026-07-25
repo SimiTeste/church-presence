@@ -1,11 +1,18 @@
-<form action="{{ url_for('dashboard.criar_aviso') }}" method="POST">
-    <div class="mb-3">
-        <label for="titulo" class="form-label">Título do Aviso</label>
-        <input type="text" class="form-label" id="titulo" name="titulo" required>
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5>📢 Publicar Novo Aviso</h5>
     </div>
-    <div class="mb-3">
-        <label for="conteudo" class="form-label">Mensagem</label>
-        <textarea class="form-control" id="conteudo" name="conteudo" rows="3" required></textarea>
+    <div class="card-body">
+        <form action="{{ url_for('leader.criar_aviso') }}" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Título</label>
+                <input type="text" name="titulo" class="form-control" required placeholder="Ex: Reunião importante">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Conteúdo do Aviso</label>
+                <textarea name="conteudo" class="form-control" rows="3" required placeholder="Escreva os detalhes aqui..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Enviar Aviso</button>
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">Publicar Aviso</button>
-</form>
+</div>
