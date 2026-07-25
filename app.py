@@ -54,7 +54,6 @@ def index():
 def atualizar_banco_forçado():
     try:
         db.create_all()
-        # Forca a criacao da coluna 'presente' caso a tabela ja exista sem ela
         db.session.execute(db.text('ALTER TABLE attendances ADD COLUMN IF NOT EXISTS presente BOOLEAN DEFAULT FALSE;'))
         db.session.commit()
         return "Banco de dados atualizado, colunas e tabelas verificadas com sucesso!"
@@ -65,6 +64,9 @@ def atualizar_banco_forçado():
 with app.app_context():
     db.create_all()
     try:
+        db.session.execute(db.text('ALTER TABLE attendances ADD COLUMN IF NOT EXISTS presente BOOLEAN DEFAULT FALSE;'))
+        db.session.commit()
+        
         master = User.query.filter_by(cpf="00000000000").first()
         if not master:
             master = User(
@@ -76,7 +78,6 @@ with app.app_context():
             )
             master.set_password("admin123")
             db.session.add(master)
-            print(">>> Usuario Master criado com sucesso! <<<")
         else:
             master.tipo = "MASTER"
             master.ativo = True
@@ -90,7 +91,6 @@ with app.app_context():
                 Event(nome="Culto de Oração", data=date.today())
             ]
             db.session.bulk_save_objects(eventos_iniciais)
-            print(">>> Eventos padrão criados com sucesso! <<<")
 
         db.session.commit()
     except Exception as e:
