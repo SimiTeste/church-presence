@@ -1,5 +1,5 @@
 import datetime
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from models import db
 from models.member import Member
@@ -26,7 +26,7 @@ def get_daily_quote():
 def index():
     frase_motivacional = get_daily_quote()
 
-    # Busca os avisos ativos para exibir aos usuários
+    # Busca os avisos ativos para exibir aos usuários de forma segura
     avisos = []
     try:
         avisos = Notice.query.filter_by(ativo=True).order_by(Notice.data_criacao.desc()).all()
@@ -119,8 +119,11 @@ def index():
             "presentes": qtd_presentes
         })
 
-    # Busca todos os avisos para o Master gerenciar no painel administrativo
-    todos_avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
+    # Busca segura de todos os avisos para o Master gerenciar no painel administrativo
+    try:
+        todos_avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
+    except Exception:
+        todos_avisos = []
 
     return render_template(
         "dashboard.html", 
@@ -144,10 +147,14 @@ def criar_aviso():
     conteudo = request.form.get("conteudo")
     
     if titulo and conteudo:
-        novo_aviso = Notice(titulo=titulo, conteudo=conteudo, ativo=True)
-        db.session.add(novo_aviso)
-        db.session.commit()
-        flash("Aviso publicado com sucesso!", "success")
+        try:
+            novo_aviso = Notice(titulo=titulo, conteudo=conteudo, ativo=True)
+            db.session.add(novo_aviso)
+            db.session.commit()
+            flash("Aviso publicado com sucesso!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Erro ao publicar aviso: {e}", "danger")
     else:
         flash("Preencha o título e o conteúdo do aviso.", "danger")
         
@@ -160,9 +167,13 @@ def excluir_aviso(id):
     if getattr(current_user, 'tipo', None) != 'MASTER':
         return abort(403)
         
-    aviso = Notice.query.get_or_404(id)
-    db.session.delete(aviso)
-    db.session.commit()
-    flash("Aviso removido com sucesso!", "success")
+    try:
+        aviso = Notice.query.get_or_404(id)
+        db.session.delete(aviso)
+        db.session.commit()
+        flash("Aviso removido com sucesso!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Erro ao remover aviso: {e}", "danger")
     
     return redirect(url_for("dashboard.index"))
