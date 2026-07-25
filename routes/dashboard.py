@@ -68,7 +68,7 @@ def index():
             avisos=todos_avisos
         )
 
-    # 2. 🛡️ Se for LÍDER, carrega o painel administrativo restrito ao escopo dele
+    # 2. 🛡️ Se for LÍDER, carrega o painel exclusivo do líder
     if user_tipo == 'LIDER':
         total_membros = Member.query.filter_by(ativo=True).count()
         total_ebds = Event.query.count()
@@ -88,7 +88,7 @@ def index():
             })
 
         return render_template(
-            "dashboard.html", 
+            "dashboard_lider.html", 
             total_membros=total_membros, 
             total_ebds=total_ebds,
             media_presenca=media_presenca,
