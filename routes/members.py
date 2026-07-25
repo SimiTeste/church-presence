@@ -29,6 +29,7 @@ def new():
         cpf = request.form.get('cpf')
         telefone = request.form.get('telefone')
         departamento = request.form.get('departamento')
+        tipo = request.form.get('tipo', 'USER')  # <--- Captura o tipo escolhido no formulário
         
         if not nome or not cpf:
             flash('Nome e CPF são obrigatórios.', 'danger')
@@ -39,7 +40,13 @@ def new():
             flash('Já existe um membro cadastrado com este CPF.', 'danger')
             return redirect(url_for('members.new'))
             
-        new_member = Member(nome=nome, cpf=cpf, telefone=telefone, departamento=departamento)
+        new_member = Member(
+            nome=nome, 
+            cpf=cpf, 
+            telefone=telefone, 
+            departamento=departamento, 
+            tipo=tipo  # <--- Salva o tipo no banco de dados
+        )
         db.session.add(new_member)
         db.session.commit()
         
@@ -58,6 +65,7 @@ def edit(id):
         member.cpf = request.form.get('cpf')
         member.telefone = request.form.get('telefone')
         member.departamento = request.form.get('departamento')
+        member.tipo = request.form.get('tipo', 'USER')  # <--- Atualiza o tipo caso seja editado
         
         db.session.commit()
         flash('Membro atualizado com sucesso!', 'success')
