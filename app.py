@@ -15,7 +15,6 @@ from routes.members import members_bp
 from routes.presence import presence_bp
 from routes.reports import reports_bp
 from routes.user_dashboard import user_dashboard_bp
-from routes.notice import notice_bp  # <--- IMPORTAÇÃO DO BLUEPRINT DE AVISOS ADICIONADA AQUI
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -44,7 +43,6 @@ app.register_blueprint(members_bp)
 app.register_blueprint(presence_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(user_dashboard_bp)
-app.register_blueprint(notice_bp)  # <--- REGISTRO DO BLUEPRINT DE AVISOS ADICIONADO AQUI
 
 # Rota raiz para evitar erro 404 ao acessar o link principal
 @app.route('/')
