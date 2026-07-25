@@ -81,8 +81,11 @@ def chamada(event_id):
         
     evento = Event.query.get_or_404(event_id)
     
+    # Captura o departamento da URL (GET) ou do campo oculto do formulário (POST)
     departamento_filtro = request.args.get('departamento', '')
-    
+    if request.method == 'POST':
+        departamento_filtro = request.form.get('departamento_atual', '')
+
     # Membros exibidos na tabela conforme o filtro
     query = Member.query.filter_by(ativo=True)
     if departamento_filtro:
@@ -92,14 +95,12 @@ def chamada(event_id):
     departamentos = db.session.query(Member.departamento).filter(Member.departamento != '').distinct().all()
     departamentos = [d[0] for d in departamentos if d[0]]
     
-    presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
-    
     if request.method == 'POST':
-        # Atualiza apenas os membros que estavam listados na tela atual (considerando o filtro)
+        # Percorre estritamente os membros que estavam visíveis na listagem da tela no momento do envio
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
             
-            # Se o checkbox foi marcado, o campo vem no form. Se foi desmarcado, não vem.
+            # O checkbox envia o nome se estiver marcado. Se estiver desmarcado, não vem no request.form.
             status = True if nome_campo in request.form else False
             
             att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
@@ -113,6 +114,8 @@ def chamada(event_id):
         flash('Chamada salva com sucesso!', 'success')
         return redirect(url_for('leader.chamada', event_id=evento.id, departamento=departamento_filtro))
         
+    presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
+    
     return render_template(
         'realizar_chamada.html', 
         evento=evento, 

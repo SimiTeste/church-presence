@@ -75,6 +75,7 @@
 
             <!-- Tabela de Chamada -->
             <form method="POST">
+                <input type="hidden" name="departamento_atual" value="{{ departamento_filtro }}">
                 <div class="card border-0 shadow-sm rounded-3 mb-4">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-calendar-event me-2"></i>{{ evento.nome }}</h5>
