@@ -1,0 +1,11 @@
+<form action="{{ url_for('dashboard.criar_aviso') }}" method="POST">
+    <div class="mb-3">
+        <label for="titulo" class="form-label">Título do Aviso</label>
+        <input type="text" class="form-label" id="titulo" name="titulo" required>
+    </div>
+    <div class="mb-3">
+        <label for="conteudo" class="form-label">Mensagem</label>
+        <textarea class="form-control" id="conteudo" name="conteudo" rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Publicar Aviso</button>
+</form>

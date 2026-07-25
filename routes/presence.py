@@ -15,8 +15,9 @@ def get_next_sunday():
 @presence_bp.route("/presence", methods=["GET"])
 @login_required
 def index():
-    if getattr(current_user, 'tipo', 'USER') != 'MASTER':
-        flash("Acesso restrito à área administrativa.", "warning")
+    user_tipo = getattr(current_user, 'tipo', 'USER')
+    if user_tipo not in ['MASTER', 'LIDER']:
+        flash("Acesso restrito à área administrativa e de liderança.", "warning")
         return redirect(url_for("dashboard.index"))
 
     events = Event.query.order_by(Event.data.desc(), Event.id.desc()).all()
@@ -65,7 +66,8 @@ def index():
 @presence_bp.route("/events/quick_add_ebd", methods=["POST"])
 @login_required
 def quick_add_ebd():
-    if getattr(current_user, 'tipo', 'USER') != 'MASTER':
+    user_tipo = getattr(current_user, 'tipo', 'USER')
+    if user_tipo not in ['MASTER', 'LIDER']:
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
 
@@ -87,7 +89,8 @@ def quick_add_ebd():
 @presence_bp.route("/presence/toggle/<int:event_id>/<int:member_id>", methods=["POST"])
 @login_required
 def toggle_presence(event_id, member_id):
-    if getattr(current_user, 'tipo', 'USER') != 'MASTER':
+    user_tipo = getattr(current_user, 'tipo', 'USER')
+    if user_tipo not in ['MASTER', 'LIDER']:
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
 
