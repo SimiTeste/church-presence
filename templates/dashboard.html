@@ -86,8 +86,8 @@
             <!-- Conteúdo Principal -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
                 
-                <!-- Alertas Flash (Mensagens de Sucesso/Erro) -->
-                with messages = get_flashed_messages(with_categories=true) %}
+                <!-- Alertas Flash (Mensagens de Sucesso/Erro) corrigidos -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
                             <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
