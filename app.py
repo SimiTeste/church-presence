@@ -50,6 +50,14 @@ app.register_blueprint(leader_bp)
 def index():
     return redirect(url_for('auth.login'))
 
+@app.route('/atualizar_banco_forçado')
+def atualizar_banco_forçado():
+    try:
+        db.create_all()
+        return "Banco de dados atualizado e tabelas/colunas verificadas com sucesso!"
+    except Exception as e:
+        return f"Erro ao atualizar banco: {e}"
+
 with app.app_context():
     db.create_all()
     try:
