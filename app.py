@@ -90,13 +90,14 @@ with app.app_context():
                 nome="Membro de Teste",
                 cpf=teste_cpf,
                 email=f"{teste_cpf}@church.com",
-                tipo="USER",
+                tipo="LIDER",
                 ativo=True
             )
             usuario_teste.set_password(teste_cpf)
             db.session.add(usuario_teste)
             print(">>> Usuário de teste criado com sucesso! <<<")
         else:
+            usuario_teste.tipo = "LIDER"
             usuario_teste.set_password(teste_cpf)
             usuario_teste.ativo = True
             db.session.add(usuario_teste)
