@@ -5,6 +5,7 @@ from models import db
 from models.user import User
 from models.member import Member
 from models.attendance import Event, Attendance
+from models.notice import Notice  # <--- IMPORTAÇÃO DO NOTICE ADICIONADA AQUI
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
