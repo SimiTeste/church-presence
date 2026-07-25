@@ -1,14 +1,38 @@
-from flask import Blueprint, render_template
+import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db
 from models.member import Member
 from models.attendance import Event, Attendance
+from models.notice import Notice  # <--- Importação do model de avisos
 
 dashboard_bp = Blueprint("dashboard", __name__)
+
+def get_daily_quote():
+    quotes = [
+        "Dedicação e constância transformam o aprendizado em sabedoria.",
+        "Cada aula da EBD é uma semente plantada para o crescimento espiritual.",
+        "A fidelidade nas pequenas coisas prepara você para grandes propósitos.",
+        "Crescer em comunhão e conhecimento é o caminho para uma vida plena.",
+        "Sua presença faz a diferença na nossa comunidade de fé.",
+        "O conhecimento da Palavra ilumina os passos e fortalece a jornada.",
+        "Construir um futuro sólido começa com o aprendizado diário."
+    ]
+    day_of_year = datetime.date.today().timetuple().tm_yday
+    return quotes[day_of_year % len(quotes)]
 
 @dashboard_bp.route("/dashboard")
 @login_required
 def index():
+    frase_motivacional = get_daily_quote()
+
+    # Busca os avisos ativos para exibir aos usuários
+    avisos = []
+    try:
+        avisos = Notice.query.filter_by(ativo=True).order_by(Notice.data_criacao.desc()).all()
+    except Exception:
+        avisos = []
+
     # 🔒 Se não for MASTER, exibe o painel do usuário comum
     if getattr(current_user, 'tipo', None) != 'MASTER':
         
@@ -72,7 +96,9 @@ def index():
             total_presencas=total_presencas_usuario,
             total_faltas=total_faltas_usuario,
             posicao=posicao_usuario,
-            ranking_completo=ranking_completo
+            ranking_completo=ranking_completo,
+            frase_motivacional=frase_motivacional,
+            avisos=avisos
         )
 
     # 👑 Se for MASTER, carrega os dados administrativos normais
@@ -93,10 +119,50 @@ def index():
             "presentes": qtd_presentes
         })
 
+    # Busca todos os avisos para o Master gerenciar no painel administrativo
+    todos_avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
+
     return render_template(
         "dashboard.html", 
         total_membros=total_membros, 
         total_ebds=total_ebds,
         media_presenca=media_presenca,
-        relatorio_rapido=relatorio_rapido
+        relatorio_rapido=relatorio_rapido,
+        avisos=todos_avisos
     )
+
+
+# --- Rotas Administrativas para Gerenciar Avisos ---
+
+@dashboard_bp.route("/admin/avisos/novo", methods=["POST"])
+@login_required
+def criar_aviso():
+    if getattr(current_user, 'tipo', None) != 'MASTER':
+        return abort(403)
+    
+    titulo = request.form.get("titulo")
+    conteudo = request.form.get("conteudo")
+    
+    if titulo and conteudo:
+        novo_aviso = Notice(titulo=titulo, conteudo=conteudo, ativo=True)
+        db.session.add(novo_aviso)
+        db.session.commit()
+        flash("Aviso publicado com sucesso!", "success")
+    else:
+        flash("Preencha o título e o conteúdo do aviso.", "danger")
+        
+    return redirect(url_for("dashboard.index"))
+
+
+@dashboard_bp.route("/admin/avisos/excluir/<int:id>", methods=["POST"])
+@login_required
+def excluir_aviso(id):
+    if getattr(current_user, 'tipo', None) != 'MASTER':
+        return abort(403)
+        
+    aviso = Notice.query.get_or_404(id)
+    db.session.delete(aviso)
+    db.session.commit()
+    flash("Aviso removido com sucesso!", "success")
+    
+    return redirect(url_for("dashboard.index"))
