@@ -95,30 +95,24 @@ def chamada(event_id):
     presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
     
     if request.method == 'POST':
-        # Buscamos todos os membros ativos para garantir que a alteração da tela atual seja salva com precisão
-        todos_membros = Member.query.filter_by(ativo=True).all()
-        
-        for membro in todos_membros:
-            # Só atualiza os membros que faziam parte da exibição daquele momento no formulário
+        # Percorre os membros que estavam visíveis na tela no momento do envio
+        for membro in membros:
             nome_campo = f'presente_{membro.id}'
+            
+            # Se o checkbox está marcado no formulário
             if nome_campo in request.form:
                 status = True
-                att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
-                if att:
-                    att.presente = status
-                else:
-                    att = Attendance(event_id=evento.id, member_id=membro.id, presente=status)
-                    db.session.add(att)
             else:
-                # Se o campo estava na tela filtrada mas foi desmarcado, atualizamos para False
-                if departamento_filtro and membro.departamento == departamento_filtro:
-                    att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
-                    if att:
-                        att.presente = False
-                elif not departamento_filtro:
-                    att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
-                    if att:
-                        att.presente = False
+                # Se o checkbox não veio no form, foi desmarcado pelo líder
+                status = False
+                
+            att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
+            if att:
+                att.presente = status
+            else:
+                # Cria o registro apenas se o status for True (ou se preferir registrar o False também)
+                att = Attendance(event_id=evento.id, member_id=membro.id, presente=status)
+                db.session.add(att)
         
         db.session.commit()
         flash('Chamada salva com sucesso!', 'success')
