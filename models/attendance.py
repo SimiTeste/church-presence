@@ -15,7 +15,6 @@ class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False)
-    presente = db.Column(db.Boolean, default=False)  # <--- Adicionado o campo correto!
     data_registro = db.Column(db.DateTime, default=datetime.utcnow)
 
     member = db.relationship('Member', backref=db.backref('attendances', lazy=True, cascade="all, delete"))
