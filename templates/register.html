@@ -40,15 +40,15 @@
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label">Tipo de Conta</label>
-                    <select name="tipo" class="form-select bg-dark text-light border-0">
-                        <option value="USER">Usuário Padrão</option>
-                        <option value="MASTER">Administrador Master</option>
+                    <label class="form-label">Tipo de Conta / Perfil</label>
+                    <select name="tipo" class="form-select bg-dark text-light border-0" required>
+                        <option value="USER">Liderado (Membro)</option>
+                        <option value="LIDER">Líder</option>
                     </select>
                 </div>
 
                 <div class="alert alert-dark border border-light text-light py-2" role="alert">
-                    <small>ℹ️ A senha inicial do usuário será criada automaticamente com os <strong>6 primeiros dígitos do CPF</strong>.</small>
+                    <small>ℹ️ A senha inicial do usuário será gerada automaticamente com base no <strong>CPF</strong>.</small>
                 </div>
                 
                 <button type="submit" class="btn btn-primary w-100 mb-2">Cadastrar Usuário</button>
