@@ -33,105 +33,126 @@ def index():
     except Exception:
         avisos = []
 
-    # 🔒 Se não for MASTER, exibe o painel do usuário comum
-    if getattr(current_user, 'tipo', None) != 'MASTER':
-        
-        # Busca o membro real vinculado ao usuário logado (pelo CPF ou Nome)
-        membro_vinculado = None
-        if hasattr(current_user, 'cpf') and current_user.cpf:
-            membro_vinculado = Member.query.filter_by(cpf=current_user.cpf).first()
-            
-        if not membro_vinculado:
-            # Fallback: Se não achar por CPF, busca pelo nome
-            membro_vinculado = Member.query.filter_by(nome=current_user.nome).first()
-            
-        # Se achou o membro, usa o ID real dele. Se não, usa o fallback.
-        real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', current_user.id)
-        
-        # 1. Busca as presenças individuais do usuário
-        presencas_usuario = Attendance.query.filter_by(member_id=real_member_id).join(Event).order_by(Event.data.desc()).all()
-        
-        dias_comparecidos = []
-        for p in presencas_usuario:
-            if p.event:
-                dias_comparecidos.append({
-                    "nome_evento": p.event.nome,
-                    "data": p.event.data.strftime("%d/%m/%Y")
-                })
+    user_tipo = getattr(current_user, 'tipo', None)
 
-        total_presencas_usuario = len(dias_comparecidos)
-
-        # --- Cálculo de Faltas ---
-        total_ebds_geral = Event.query.count()
-        total_faltas_usuario = total_ebds_geral - total_presencas_usuario
+    # 1. 👑 Se for MASTER, carrega os dados administrativos normais
+    if user_tipo == 'MASTER':
+        total_membros = Member.query.filter_by(ativo=True).count()
+        total_ebds = Event.query.count()
+        total_presencas = Attendance.query.count()
         
-        if total_faltas_usuario < 0:
-            total_faltas_usuario = 0 
+        media_presenca = round(total_presencas / total_ebds, 1) if total_ebds > 0 else 0
 
-        # 2. Calcula o Ranking Geral com Nomes e Departamentos
-        ranking_dados = db.session.query(
-            Member.id,
-            Member.nome,
-            Member.departamento,
-            db.func.count(Attendance.id).label('total')
-        ).join(Attendance, Member.id == Attendance.member_id).group_by(Member.id).order_by(db.desc('total')).all()
-
-        ranking_completo = []
-        posicao_usuario = "-"
+        ebds = Event.query.order_by(Event.data.desc()).limit(5).all()
+        relatorio_rapido = []
         
-        for index, item in enumerate(ranking_dados, start=1):
-            ranking_completo.append({
-                "posicao": index,
-                "nome": item.nome,
-                "departamento": item.departamento if item.departamento else "-",
-                "total": item.total
+        for ebd in ebds:
+            qtd_presentes = Attendance.query.filter_by(event_id=ebd.id).count()
+            relatorio_rapido.append({
+                "nome": ebd.nome,
+                "data": ebd.data.strftime("%d/%m/%Y"),
+                "presentes": qtd_presentes
             })
-            if item.id == real_member_id:
-                posicao_usuario = index
+
+        try:
+            todos_avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
+        except Exception:
+            todos_avisos = []
 
         return render_template(
-            "dashboard_user.html", 
-            user=current_user,
-            dias_comparecidos=dias_comparecidos,
-            total_presencas=total_presencas_usuario,
-            total_faltas=total_faltas_usuario,
-            posicao=posicao_usuario,
-            ranking_completo=ranking_completo,
-            frase_motivacional=frase_motivacional,
+            "dashboard.html", 
+            total_membros=total_membros, 
+            total_ebds=total_ebds,
+            media_presenca=media_presenca,
+            relatorio_rapido=relatorio_rapido,
+            avisos=todos_avisos
+        )
+
+    # 2. 🛡️ Se for LÍDER, carrega o painel administrativo restrito ao escopo dele
+    if user_tipo == 'LIDER':
+        total_membros = Member.query.filter_by(ativo=True).count()
+        total_ebds = Event.query.count()
+        total_presencas = Attendance.query.count()
+        
+        media_presenca = round(total_presencas / total_ebds, 1) if total_ebds > 0 else 0
+
+        ebds = Event.query.order_by(Event.data.desc()).limit(5).all()
+        relatorio_rapido = []
+        
+        for ebd in ebds:
+            qtd_presentes = Attendance.query.filter_by(event_id=ebd.id).count()
+            relatorio_rapido.append({
+                "nome": ebd.nome,
+                "data": ebd.data.strftime("%d/%m/%Y"),
+                "presentes": qtd_presentes
+            })
+
+        return render_template(
+            "dashboard.html", 
+            total_membros=total_membros, 
+            total_ebds=total_ebds,
+            media_presenca=media_presenca,
+            relatorio_rapido=relatorio_rapido,
             avisos=avisos
         )
 
-    # 👑 Se for MASTER, carrega os dados administrativos normais
-    total_membros = Member.query.filter_by(ativo=True).count()
-    total_ebds = Event.query.count()
-    total_presencas = Attendance.query.count()
+    # 3. 👤 Se for usuário COMUM (USER), exibe o painel do membro
+    membro_vinculado = None
+    if hasattr(current_user, 'cpf') and current_user.cpf:
+        membro_vinculado = Member.query.filter_by(cpf=current_user.cpf).first()
+        
+    if not membro_vinculado:
+        membro_vinculado = Member.query.filter_by(nome=current_user.nome).first()
+        
+    real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', current_user.id)
     
-    media_presenca = round(total_presencas / total_ebds, 1) if total_ebds > 0 else 0
+    presencas_usuario = Attendance.query.filter_by(member_id=real_member_id).join(Event).order_by(Event.data.desc()).all()
+    
+    dias_comparecidos = []
+    for p in presencas_usuario:
+        if p.event:
+            dias_comparecidos.append({
+                "nome_evento": p.event.nome,
+                "data": p.event.data.strftime("%d/%m/%Y")
+            })
 
-    ebds = Event.query.order_by(Event.data.desc()).limit(5).all()
-    relatorio_rapido = []
+    total_presencas_usuario = len(dias_comparecidos)
+    total_ebds_geral = Event.query.count()
+    total_faltas_usuario = total_ebds_geral - total_presencas_usuario
     
-    for ebd in ebds:
-        qtd_presentes = Attendance.query.filter_by(event_id=ebd.id).count()
-        relatorio_rapido.append({
-            "nome": ebd.nome,
-            "data": ebd.data.strftime("%d/%m/%Y"),
-            "presentes": qtd_presentes
+    if total_faltas_usuario < 0:
+        total_faltas_usuario = 0 
+
+    ranking_dados = db.session.query(
+        Member.id,
+        Member.nome,
+        Member.departamento,
+        db.func.count(Attendance.id).label('total')
+    ).join(Attendance, Member.id == Attendance.member_id).group_by(Member.id).order_by(db.desc('total')).all()
+
+    ranking_completo = []
+    posicao_usuario = "-"
+    
+    for index, item in enumerate(ranking_dados, start=1):
+        ranking_completo.append({
+            "posicao": index,
+            "nome": item.nome,
+            "departamento": item.departamento if item.departamento else "-",
+            "total": item.total
         })
-
-    # Busca segura de todos os avisos para o Master gerenciar no painel administrativo
-    try:
-        todos_avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
-    except Exception:
-        todos_avisos = []
+        if item.id == real_member_id:
+            posicao_usuario = index
 
     return render_template(
-        "dashboard.html", 
-        total_membros=total_membros, 
-        total_ebds=total_ebds,
-        media_presenca=media_presenca,
-        relatorio_rapido=relatorio_rapido,
-        avisos=todos_avisos
+        "dashboard_user.html", 
+        user=current_user,
+        dias_comparecidos=dias_comparecidos,
+        total_presencas=total_presencas_usuario,
+        total_faltas=total_faltas_usuario,
+        posicao=posicao_usuario,
+        ranking_completo=ranking_completo,
+        frase_motivacional=frase_motivacional,
+        avisos=avisos
     )
 
 
@@ -140,7 +161,8 @@ def index():
 @dashboard_bp.route("/admin/avisos/novo", methods=["POST"])
 @login_required
 def criar_aviso():
-    if getattr(current_user, 'tipo', None) != 'MASTER':
+    user_tipo = getattr(current_user, 'tipo', None)
+    if user_tipo != 'MASTER' and user_tipo != 'LIDER':
         return abort(403)
     
     titulo = request.form.get("titulo")
@@ -164,7 +186,8 @@ def criar_aviso():
 @dashboard_bp.route("/admin/avisos/excluir/<int:id>", methods=["POST"])
 @login_required
 def excluir_aviso(id):
-    if getattr(current_user, 'tipo', None) != 'MASTER':
+    user_tipo = getattr(current_user, 'tipo', None)
+    if user_tipo != 'MASTER' and user_tipo != 'LIDER':
         return abort(403)
         
     try:

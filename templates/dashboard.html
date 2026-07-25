@@ -111,7 +111,13 @@
                 <i class="bi bi-building me-2"></i>Ad Brás - Jardim Califórnia
             </a>
             <div class="d-flex align-items-center">
-                <span class="text-muted small me-3 d-none d-md-inline">Painel Administrativo</span>
+                <span class="text-muted small me-3 d-none d-md-inline">
+                    {% if current_user.tipo == 'LIDER' %}
+                        Painel do Líder ({{ current_user.departamento if current_user.departamento else 'Geral' }})
+                    {% else %}
+                        Painel Administrativo (Master)
+                    {% endif %}
+                </span>
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm btn-custom">
                     <i class="bi bi-box-arrow-right me-1"></i> Sair
                 </a>
@@ -134,8 +140,21 @@
             {% endif %}
         {% endwith %}
 
+        <!-- Saudação Diferenciada -->
+        <div class="alert alert-dark mb-4 p-4 rounded-3 text-white bg-dark">
+            <h4 class="fw-bold mb-1"><i class="bi bi-hand-wave me-2"></i>Olá, {{ current_user.nome }}!</h4>
+            <p class="mb-0 text-white-50" style="font-size: 14px;">
+                {% if current_user.tipo == 'LIDER' %}
+                    Bem-vindo ao seu ambiente de liderança. Aqui você pode realizar a chamada e acompanhar os membros sob sua responsabilidade.
+                {% else %}
+                    Bem-vindo ao painel administrativo geral da Ad Brás - Jardim Califórnia.
+                {% endif %}
+            </p>
+        </div>
+
         <!-- Cards de Estatísticas / Ações Rápidas -->
         <div class="row">
+            <!-- Todos veem Membros e Presença, mas o Líder foca no seu escopo -->
             <div class="col-md-4">
                 <div class="card-custom stat-card">
                     <div class="stat-info">
@@ -166,6 +185,7 @@
                 </a>
             </div>
 
+            <!-- Relatórios: Visível apenas para Master ou se quiser liberar para Líder também -->
             <div class="col-md-4">
                 <div class="card-custom stat-card">
                     <div class="stat-info">
@@ -182,35 +202,42 @@
             </div>
         </div>
 
-        <!-- Seção de Gerenciamento e Visualização de Avisos (Painel Master) -->
+        <!-- Seção Inferior: Diferente para Líder e Master -->
         <div class="row">
             <div class="col-md-6">
                 <div class="card-custom">
                     <h5 class="section-title"><i class="bi bi-speedometer2 me-2"></i>Visão Geral do Sistema</h5>
                     <p class="text-muted mb-0" style="font-size: 14px;">
-                        Bem-vindo ao sistema de gestão de chamadas e presença da <strong>Ad Brás - Jardim Califórnia</strong>. Utilize os atalhos acima para gerenciar os cadastros da igreja, realizar as chamadas dos cultos e reuniões, ou acompanhar os relatórios detalhados.
+                        Sistema de gestão de chamadas e presença da <strong>Ad Brás - Jardim Califórnia</strong>. 
+                        {% if current_user.tipo == 'LIDER' %}
+                            Como líder do departamento <strong>{{ current_user.departamento if current_user.departamento else 'Geral' }}</strong>, utilize os atalhos acima para fazer a chamada dos seus liderados.
+                        {% else %}
+                            Utilize os atalhos acima para gerenciar os cadastros da igreja, realizar as chamadas dos cultos ou acompanhar os relatórios detalhados.
+                        {% endif %}
                     </p>
                 </div>
             </div>
 
+            <!-- Bloco de Avisos: Restrito ou customizado para o Master (ou exibido de forma que o líder apenas leia) -->
             <div class="col-md-6">
                 <div class="card-custom">
-                    <h5 class="section-title"><i class="bi bi-megaphone-fill me-2"></i>Gerenciar Avisos</h5>
+                    <h5 class="section-title"><i class="bi bi-megaphone-fill me-2"></i>Quadro de Avisos</h5>
                     
-                    <!-- Formulário para criar aviso -->
-                    <form action="{{ url_for('dashboard.criar_aviso') }}" method="POST" class="mb-3">
-                        <div class="mb-2">
-                            <input type="text" class="form-control form-control-sm" name="titulo" placeholder="Título do aviso" required>
-                        </div>
-                        <div class="mb-2">
-                            <textarea class="form-control form-control-sm" name="conteudo" rows="2" placeholder="Escreva a mensagem..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-dark-custom btn-sm w-100">
-                            <i class="bi bi-send me-1"></i> Publicar Aviso
-                        </button>
-                    </form>
-
-                    <hr class="my-3">
+                    {% if current_user.tipo == 'MASTER' %}
+                        <!-- Formulário para criar aviso (Apenas Master) -->
+                        <form action="{{ url_for('dashboard.criar_aviso') }}" method="POST" class="mb-3">
+                            <div class="mb-2">
+                                <input type="text" class="form-control form-control-sm" name="titulo" placeholder="Título do aviso" required>
+                            </div>
+                            <div class="mb-2">
+                                <textarea class="form-control form-control-sm" name="conteudo" rows="2" placeholder="Escreva a mensagem..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-dark-custom btn-sm w-100">
+                                <i class="bi bi-send me-1"></i> Publicar Aviso
+                            </button>
+                        </form>
+                        <hr class="my-3">
+                    {% endif %}
 
                     <h6 class="fw-bold mb-2" style="font-size: 14px; color: #0f172a;">Avisos Ativos</h6>
                     {% if avisos %}
@@ -221,11 +248,13 @@
                                     <h6 class="fw-bold mb-1" style="font-size: 13px; color: #0f172a;">{{ aviso.titulo }}</h6>
                                     <p class="mb-0 text-muted" style="font-size: 12px;">{{ aviso.conteudo }}</p>
                                 </div>
-                                <form action="{{ url_for('dashboard.excluir_aviso', id=aviso.id) }}" method="POST" onsubmit="return confirm('Deseja excluir este aviso?');" class="ms-2">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1 border-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                {% if current_user.tipo == 'MASTER' %}
+                                    <form action="{{ url_for('dashboard.excluir_aviso', id=aviso.id) }}" method="POST" onsubmit="return confirm('Deseja excluir este aviso?');" class="ms-2">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1 border-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>

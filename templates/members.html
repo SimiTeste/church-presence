@@ -111,7 +111,7 @@
             <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
                 <i class="bi bi-building me-2"></i>Ad Brás - Jardim Califórnia
             </a>
-            <div class="d-flex align-items: center;">
+            <div class="d-flex align-items-center">
                 <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary btn-sm btn-custom me-2">
                     <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
                 </a>
@@ -175,6 +175,7 @@
                             <th>CPF</th>
                             <th>Telefone</th>
                             <th>Departamento</th>
+                            <th>Perfil / Acesso</th>
                             <th class="text-end" style="width: 200px;">Ações</th>
                         </tr>
                     </thead>
@@ -190,6 +191,13 @@
                                         {{ member.departamento if member.departamento else 'Não definido' }}
                                     </span>
                                 </td>
+                                <td>
+                                    {% if member.user and member.user.tipo == 'LIDER' %}
+                                        <span class="badge bg-dark text-white px-2 py-1">Líder</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary text-white px-2 py-1">Liderado</span>
+                                    {% endif %}
+                                </td>
                                 <td class="text-end">
                                     <a href="{{ url_for('members.edit', id=member.id) }}" class="btn btn-outline-primary btn-sm btn-custom me-1">
                                         <i class="bi bi-pencil me-1"></i> Editar
@@ -204,7 +212,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">Nenhum membro cadastrado ou encontrado com este filtro.</td>
+                                <td colspan="6" class="text-center text-muted py-4">Nenhum membro cadastrado ou encontrado com este filtro.</td>
                             </tr>
                         {% endif %}
                     </tbody>
