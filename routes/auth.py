@@ -40,7 +40,8 @@ def register():
         db.session.add(novo_usuario)
         db.session.commit()
         
-        flash('Usuário cadastrado com sucesso!', 'success')
+        perfil_nome = "Líder" if tipo == "LIDER" else "Liderado"
+        flash(f'Usuário cadastrado com sucesso como {perfil_nome}!', 'success')
         return redirect(url_for('dashboard.index'))
         
     return render_template('register.html')
