@@ -1,18 +1,127 @@
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5>📢 Publicar Novo Aviso</h5>
-    </div>
-    <div class="card-body">
-        <form action="{{ url_for('leader.criar_aviso') }}" method="POST">
-            <div class="mb-3">
-                <label class="form-label">Título</label>
-                <input type="text" name="titulo" class="form-control" required placeholder="Ex: Reunião importante">
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Líder - EBD System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#"><i class="fas fa-church me-2"></i>EBD System - Painel do Líder</a>
+            <div class="d-flex align-items-center">
+                <span class="text-light me-3 d-none d-md-inline">Olá, <strong>{{ current_user.nome }}</strong></span>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt me-1"></i> Sair</a>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Conteúdo do Aviso</label>
-                <textarea name="conteudo" class="form-control" rows="3" required placeholder="Escreva os detalhes aqui..."></textarea>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        
+        <!-- Alertas do sistema (Flash messages) -->
+        with get_flashed_messages(with_categories=true) as messages:
+            if messages:
+                for category, message in messages:
+                    <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                endif
+            endif
+
+        <div class="row">
+            <!-- Coluna Esquerda: Publicar Avisos -->
+            <div class="col-lg-5 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-bullhorn me-2"></i>Publicar Novo Aviso</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('leader.criar_aviso') }}" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Título</label>
+                                <input type="text" name="titulo" class="form-control" required placeholder="Ex: Mudança de horário na próxima aula">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Conteúdo do Aviso</label>
+                                <textarea name="conteudo" class="form-control" rows="4" required placeholder="Escreva os detalhes da mensagem aqui..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2"><i class="fas fa-paper-plane me-2"></i>Enviar Aviso</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="btn btn-success">Enviar Aviso</button>
-        </form>
+
+            <!-- Coluna Direita: Lista de Eventos para Chamada -->
+            <div class="col-lg-7 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-success text-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-clipboard-user me-2"></i>Realizar Chamada por Evento</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Selecione abaixo o evento correspondente para registrar a presença dos membros:</p>
+                        
+                        {% if eventos %}
+                            <div class="list-group">
+                                {% for evento in eventos %}
+                                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">{{ evento.nome }}</h6>
+                                        <small class="text-muted"><i class="far fa-calendar-alt me-1"></i> Data: {{ evento.data.strftime('%d/%m/%Y') if evento.data else 'Não informada' }}</small>
+                                    </div>
+                                    <a href="{{ url_for('leader.chamada', event_id=evento.id) }}" class="btn btn-primary btn-sm px-3 py-2">
+                                        <i class="fas fa-check-square me-1"></i> Fazer Chamada
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Nenhum evento cadastrado no momento para realizar chamada.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Inferior: Histórico de Avisos Publicados -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Avisos Já Publicados</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if avisos %}
+                            <div class="row">
+                                {% for aviso in avisos %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-start border-primary border-4 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title fw-bold text-primary">{{ aviso.titulo }}</h6>
+                                            <p class="card-text text-secondary small mb-2">{{ aviso.conteudo }}</p>
+                                            <span class="text-muted" style="font-size: 0.75rem;"><i class="far fa-clock me-1"></i> {{ aviso.data_criacao.strftime('%d/%m/%Y às %H:%M') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-center my-3">Nenhum aviso publicado até o momento.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
