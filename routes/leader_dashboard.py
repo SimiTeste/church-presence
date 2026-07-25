@@ -4,6 +4,7 @@ from models import db
 from models.notice import Notice
 from models.member import Member
 from models.attendance import Event, Attendance
+from sqlalchemy import func
 
 leader_bp = Blueprint('leader', __name__)
 
@@ -19,7 +20,23 @@ def dashboard():
         
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
-    return render_template('dashboard_lider.html', avisos=avisos, eventos=eventos)
+    
+    # Consulta para montar o ranking de presenças dos membros ativos
+    ranking_membros = db.session.query(
+        Member, 
+        func.count(Attendance.id).label('total_presencas')
+    ).outerjoin(Attendance, (Attendance.member_id == Member.id) & (Attendance.presente == True))\
+     .filter(Member.ativo == True)\
+     .group_by(Member.id)\
+     .order_by(func.count(Attendance.id).desc())\
+     .all()
+
+    return render_template(
+        'dashboard_lider.html', 
+        avisos=avisos, 
+        eventos=eventos, 
+        ranking_membros=ranking_membros
+    )
 
 @leader_bp.route('/leader/avisos/novo', methods=['POST'])
 @login_required

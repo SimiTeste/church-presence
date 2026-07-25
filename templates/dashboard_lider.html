@@ -148,6 +148,51 @@
             </div>
         </div>
 
+        <!-- Seção do Ranking de Presença dos Membros -->
+        <div class="card-custom mt-2">
+            <h5 class="section-title"><i class="bi bi-trophy-fill me-2 text-warning"></i>Ranking de Presença dos Membros</h5>
+            <p class="text-muted small mb-3">Acompanhe o engajamento e a frequência geral dos membros com base nas chamadas realizadas:</p>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 ps-3" style="width: 100px;">Posição</th>
+                            <th class="py-3">Membro</th>
+                            <th class="py-3">Departamento</th>
+                            <th class="text-center py-3" style="width: 200px;">Presenças Confirmadas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membro, total_presencas in ranking_membros %}
+                        <tr>
+                            <td class="ps-3 fw-bold">
+                                {% if loop.index == 1 %} 🥇 <span class="text-dark">1º</span>
+                                {% elif loop.index == 2 %} 🥈 <span class="text-dark">2º</span>
+                                {% elif loop.index == 3 %} 🥉 <span class="text-dark">3º</span>
+                                {% else %} {{ loop.index }}º {% endif %}
+                            </td>
+                            <td class="fw-semibold text-dark">{{ membro.nome }}</td>
+                            <td>
+                                {% if membro.departamento %}
+                                    <span class="badge bg-light text-dark border">{{ membro.departamento }}</span>
+                                {% else %}
+                                    <span class="text-muted small">Geral</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success px-3 py-2">{{ total_presencas }} presença(s)</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">Nenhum membro cadastrado ou com presenças registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <!-- Bootstrap JS Bundle -->
