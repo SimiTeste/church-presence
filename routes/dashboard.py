@@ -67,7 +67,7 @@ def index():
             avisos=todos_avisos
         )
 
-    # 2. 🛡️ Se for LÍDER
+    # 2. 🛡️ Se for LÍDER (Painel do Líder alinhado com estatísticas limpas)
     if user_tipo == 'LIDER':
         total_membros = Member.query.filter_by(ativo=True).count()
         total_ebds = Event.query.count()
@@ -105,8 +105,7 @@ def index():
         
     real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', current_user.id)
     
-    query_presencas_usuario = Attendance.query.filter_by(member_id=real_member_id, presente=True)
-    presencas_usuario = query_presencas_usuario.join(Event).order_by(Event.data.desc()).all()
+    presencas_usuario = Attendance.query.filter_by(member_id=real_member_id, presente=True).join(Event).order_by(Event.data.desc()).all()
     
     dias_comparecidos = []
     for p in presencas_usuario:
@@ -120,11 +119,11 @@ def index():
     total_ebds_geral = Event.query.count() or 0
     total_faltas_usuario = max(0, total_ebds_geral - total_presencas_usuario)
 
-    # Garante que pega todos os membros (removendo o filtro restritivo caso haja registros mal formatados, ou trazendo todos onde ativo não seja explicitamente False)
-    members_ativos = Member.query.filter((Member.ativo == True) | (Member.ativo == None)).all()
-    
+    # Ranking padronizado para a base ativa (~50 membros)
+    membros_ativos = Member.query.filter_by(ativo=True).all()
     lista_ranking = []
-    for m in members_ativos:
+    
+    for m in membros_ativos:
         p_count = Attendance.query.filter_by(member_id=m.id, presente=True).count()
         porcentagem = round((p_count / total_ebds_geral) * 100, 1) if total_ebds_geral > 0 else 0
         
@@ -136,7 +135,7 @@ def index():
             "porcentagem": porcentagem
         })
 
-    # Ordenação exata: 1º Presenças desc, 2º Porcentagem desc, 3º Nome A-Z
+    # Ordenação idêntica: 1º Presenças (desc), 2º Porcentagem (desc), 3º Nome (A-Z)
     lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["nome"]))
 
     ranking_completo = []
@@ -190,7 +189,7 @@ def criar_aviso():
     return redirect(url_for("dashboard.index"))
 
 
-@dashboard_bp.route("/admin/avisos/excluir/<int:id>", methods=["POST"])
+@dashboard_bp.route("/admin/avisos/excluir/<id>", methods=["POST"])
 @login_required
 def excluir_aviso(id):
     user_tipo = getattr(current_user, 'tipo', None)
