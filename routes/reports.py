@@ -25,7 +25,8 @@ def index():
     
     relatorio_membros = []
     for member in members:
-        presencas = Attendance.query.filter_by(member_id=member.id).count()
+        # CORREÇÃO: Conta apenas onde presente=True
+        presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
         porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
         
         relatorio_membros.append({
@@ -37,7 +38,7 @@ def index():
             "porcentagem": porcentagem
         })
 
-    # Ordena do maior para o menor número de presenças
+    # Ordena do maior para o menor número de presenças e porcentagem
     ranking_membros = sorted(relatorio_membros, key=lambda x: (x["presencas"], x["porcentagem"]), reverse=True)
 
     return render_template("reports.html", 
@@ -65,7 +66,8 @@ def export_csv():
     total_ebds = Event.query.count() or 0
     
     for member in members:
-        presencas = Attendance.query.filter_by(member_id=member.id).count()
+        # CORREÇÃO: Conta apenas onde presente=True também na exportação
+        presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
         porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
         cw.writerow([member.nome, member.departamento, presencas, total_ebds, f"{porcentagem}%"])
         
