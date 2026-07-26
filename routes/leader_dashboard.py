@@ -36,8 +36,9 @@ def dashboard():
             "porcentagem": porcentagem
         })
     
-    # Ordena exatamente igual ao relatório do Master: primeiro por presenças (desc), depois por porcentagem (desc) e por fim alfabético pelo nome
-    ranking_calculado.sort(key=lambda x: (x["presencas"], x["porcentagem"], x["member"].nome), reverse=True)
+    # === AQUI ESTÁ A CORREÇÃO ===
+    # Ordena exatamente igual ao relatório do Master (Sem o reverse=True e com sinais de negativo)
+    ranking_calculado.sort(key=lambda x: (-x["presencas"], -x["porcentagem"], x["member"].nome))
     
     # Formata para o template do líder esperar (passando tuplas no formato [ (Member, total_presencas), ... ])
     ranking_membros = [(item["member"], item["presencas"]) for item in ranking_calculado]
