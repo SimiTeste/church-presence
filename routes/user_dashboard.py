@@ -59,8 +59,13 @@ def index():
             avisos=avisos
         )
 
-    # Busca presenças do membro
-    presencas_membro = Attendance.query.filter_by(member_id=membro.id).all()
+    # Busca presenças reais do membro (somente onde presente=True)
+    query_presencas = Attendance.query.filter_by(member_id=membro.id)
+    if hasattr(Attendance, 'presente'):
+        presencas_membro = [p for p in query_presencas.all() if getattr(p, 'presente', True)]
+    else:
+        presencas_membro = query_presencas.all()
+        
     total_presencas = len(presencas_membro)
     total_faltas = max(0, total_ebds - total_presencas)
 
@@ -73,11 +78,16 @@ def index():
                 "nome_evento": evento.nome
             })
 
-    # Calcula o ranking geral de todos os membros ativos para exibir na tabela
+    # Calcula o ranking geral de todos os membros ativos considerando APENAS presenças reais
     members_ativos = Member.query.filter_by(ativo=True).all()
     lista_ranking = []
     for m in members_ativos:
-        p_count = Attendance.query.filter_by(member_id=m.id).count()
+        q_p = Attendance.query.filter_by(member_id=m.id)
+        if hasattr(Attendance, 'presente'):
+            p_count = len([p for p in q_p.all() if getattr(p, 'presente', True)])
+        else:
+            p_count = q_p.count()
+            
         lista_ranking.append({
             "nome": m.nome,
             "departamento": m.departamento or "Geral",
