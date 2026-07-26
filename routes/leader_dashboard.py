@@ -18,18 +18,29 @@ def dashboard():
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
     
-    # CORREÇÃO: Adicionado Member.nome.asc() para desempate igual ao Master
-    ranking_membros = db.session.query(
-        Member, 
-        func.count(Attendance.id).label('total_presencas')
-    ).outerjoin(Attendance, (Attendance.member_id == Member.id) & (Attendance.presente == True))\
-     .filter(Member.ativo == True)\
-     .group_by(Member.id)\
-     .order_by(
-         func.count(Attendance.id).desc(),
-         Member.nome.asc()
-     )\
-     .all()
+    # Total de EBDs cadastradas no sistema (mesma lógica usada no relatorio do Master)
+    total_ebds = Event.query.count() or 0
+    
+    # Busca todos os membros ativos
+    members = Member.query.filter_by(ativo=True).all()
+    
+    ranking_calculado = []
+    for member in members:
+        # Conta exatamente igual ao relatório do master (apenas onde presente=True)
+        presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
+        porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
+        
+        ranking_calculado.append({
+            "member": member,
+            "presencas": presencas,
+            "porcentagem": porcentagem
+        })
+    
+    # Ordena exatamente igual ao relatório do Master: primeiro por presenças (desc), depois por porcentagem (desc) e por fim alfabético pelo nome
+    ranking_calculado.sort(key=lambda x: (x["presencas"], x["porcentagem"], x["member"].nome), reverse=True)
+    
+    # Formata para o template do líder esperar (passando tuplas no formato [ (Member, total_presencas), ... ])
+    ranking_membros = [(item["member"], item["presencas"]) for item in ranking_calculado]
 
     return render_template(
         'dashboard_lider.html', 
@@ -94,12 +105,8 @@ def chamada(event_id):
     departamentos = [d[0] for d in departamentos if d[0]]
     
     if request.method == 'POST':
-        # Atualiza APENAS os membros que estavam renderizados e submetidos na tela atual
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
-            
-            # CORREÇÃO: Se o checkbox vem no formulário, significa que foi marcado (True). 
-            # Se não vem, o navegador ocultou porque o switch estava desligado (False).
             status = nome_campo in request.form
             
             att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
