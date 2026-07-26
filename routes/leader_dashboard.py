@@ -18,13 +18,17 @@ def dashboard():
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
     
+    # CORREÇÃO: Adicionado Member.nome.asc() para desempate igual ao Master
     ranking_membros = db.session.query(
         Member, 
         func.count(Attendance.id).label('total_presencas')
     ).outerjoin(Attendance, (Attendance.member_id == Member.id) & (Attendance.presente == True))\
      .filter(Member.ativo == True)\
      .group_by(Member.id)\
-     .order_by(func.count(Attendance.id).desc())\
+     .order_by(
+         func.count(Attendance.id).desc(),
+         Member.nome.asc()
+     )\
      .all()
 
     return render_template(
