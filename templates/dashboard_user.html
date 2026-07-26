@@ -112,34 +112,6 @@
             </div>
         </div>
 
-        <!-- Seção de Dados do Meu Cadastro (Visível apenas para usuários comuns/membros) -->
-        {% if current_user.tipo == 'USER' %}
-        <div class="card-custom mb-4 border-start border-primary border-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0 text-dark" style="font-size: 16px;">
-                    <i class="bi bi-person-badge me-2 text-primary"></i>Meu Cadastro
-                </h5>
-                <a href="{{ url_for('members.meu_perfil') }}" class="btn btn-sm btn-outline-primary btn-custom">
-                    <i class="bi bi-pencil-square me-1"></i> Editar Dados
-                </a>
-            </div>
-            <div class="row g-3" style="font-size: 14px;">
-                <div class="col-md-4">
-                    <span class="text-muted d-block" style="font-size: 12px;">Nome Completo</span>
-                    <strong class="text-dark">{{ current_user.nome }}</strong>
-                </div>
-                <div class="col-md-4">
-                    <span class="text-muted d-block" style="font-size: 12px;">E-mail</span>
-                    <strong class="text-dark">{{ current_user.email }}</strong>
-                </div>
-                <div class="col-md-4">
-                    <span class="text-muted d-block" style="font-size: 12px;">Departamento</span>
-                    <strong class="text-dark">{{ current_user.departamento if current_user.departamento else 'Não vinculado' }}</strong>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
         <!-- Seção de Avisos e Comunicados da Igreja -->
         <div class="card-custom mb-4">
             <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">
