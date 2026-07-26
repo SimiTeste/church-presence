@@ -25,11 +25,11 @@ def index():
     
     relatorio_membros = []
     for member in members:
-        # CORREÇÃO: Conta apenas onde presente=True
         presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
         porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
         
         relatorio_membros.append({
+            "member_id": member.id,
             "nome": getattr(member, 'nome', 'Sem Nome'),
             "departamento": getattr(member, 'departamento', 'Geral'),
             "foto": getattr(member, 'foto', None),
@@ -38,8 +38,8 @@ def index():
             "porcentagem": porcentagem
         })
 
-    # Ordena do maior para o menor número de presenças e porcentagem
-    ranking_membros = sorted(relatorio_membros, key=lambda x: (x["presencas"], x["porcentagem"]), reverse=True)
+    # Ordenação padronizada: 1º Presenças (desc), 2º Porcentagem (desc), 3º ID do Membro (asc)
+    ranking_membros = sorted(relatorio_membros, key=lambda x: (-x["presencas"], -x["porcentagem"], x["member_id"]))
 
     return render_template("reports.html", 
                            relatorio_membros=ranking_membros, 
@@ -62,14 +62,29 @@ def export_csv():
     if departamento_selecionado and departamento_selecionado.strip():
         query = query.filter_by(departamento=departamento_selecionado)
         
-    members = query.order_by(Member.nome.asc()).all()
+    members = query.all()
     total_ebds = Event.query.count() or 0
     
+    # Coleta e calcula os dados para ordenar o CSV exatamente igual ao painel web
+    dados_csv = []
     for member in members:
-        # CORREÇÃO: Conta apenas onde presente=True também na exportação
         presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
         porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
-        cw.writerow([member.nome, member.departamento, presencas, total_ebds, f"{porcentagem}%"])
+        
+        dados_csv.append({
+            "member_id": member.id,
+            "nome": member.nome,
+            "departamento": member.departamento,
+            "presencas": presencas,
+            "porcentagem": porcentagem
+        })
+
+    # Aplica a mesma ordenação padrão do sistema
+    dados_csv.sort(key=lambda x: (-x["presencas"], (-x["porcentagem"]), x["member_id"]))
+
+    # Escreve as linhas ordenadas no CSV
+    for item in dados_csv:
+        cw.writerow([item["nome"], item["departamento"], item["presencas"], total_ebds, f"{item['porcentagem']}%"])
         
     output = si.getvalue()
     dept_suffix = f"_{departamento_selecionado.lower()}" if departamento_selecionado else ""

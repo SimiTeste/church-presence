@@ -43,7 +43,7 @@ def index():
     # Tenta encontrar o membro vinculado pelo CPF do usuário logado
     membro = Member.query.filter_by(cpf=current_user.cpf).first()
 
-    total_ebds = Event.query.count()
+    total_ebds = Event.query.count() or 0
     
     # Se o membro não estiver cadastrado na tabela Member ainda, inicializa com valores zerados
     if not membro:
@@ -78,7 +78,7 @@ def index():
                 "nome_evento": evento.nome
             })
 
-    # Calcula o ranking geral de todos os membros ativos considerando APENAS presenças reais
+    # Calcula o ranking geral de todos os membros ativos usando a mesma regra dos demais painéis
     members_ativos = Member.query.filter_by(ativo=True).all()
     lista_ranking = []
     for m in members_ativos:
@@ -88,25 +88,30 @@ def index():
         else:
             p_count = q_p.count()
             
+        porcentagem = round((p_count / total_ebds) * 100, 1) if total_ebds > 0 else 0
+            
         lista_ranking.append({
+            "member_id": m.id,
             "nome": m.nome,
             "departamento": m.departamento or "Geral",
-            "total": p_count
+            "total": p_count,
+            "porcentagem": porcentagem
         })
 
-    # Ordena do maior para o menor número de presenças
-    lista_ranking = sorted(lista_ranking, key=lambda x: x["total"], reverse=True)
+    # Ordenação padronizada: 1º Presenças (desc), 2º Porcentagem (desc), 3º ID do Membro (asc)
+    lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["member_id"]))
 
     ranking_completo = []
     posicao_usuario = "-"
     for idx, r in enumerate(lista_ranking, start=1):
-        if r["nome"] == membro.nome:
+        if r["member_id"] == membro.id:
             posicao_usuario = idx
         ranking_completo.append({
             "posicao": idx,
             "nome": r["nome"],
             "departamento": r["departamento"],
-            "total": r["total"]
+            "total": r["total"],
+            "porcentagem": f"{r['porcentagem']}%"
         })
 
     return render_template(

@@ -85,8 +85,8 @@ def index():
                 "porcentagem": porcentagem
             })
 
-        # Ordenação idêntica em todos os painéis: 1º Presenças (desc), 2º Porcentagem (desc), 3º Nome (A-Z)
-        lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["nome"]))
+        # Ordenação idêntica em todos os painéis: 1º Presenças (desc), 2º Porcentagem (desc), 3º ID (Ordem de Cadastro)
+        lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["member_id"]))
 
         ranking_completo = []
         posicao_usuario = "-"
