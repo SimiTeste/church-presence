@@ -126,10 +126,12 @@
                     {% endif %}
                 </span>
                 
-                <!-- Botão para acessar o próprio perfil -->
-                <a href="{{ url_for('members.meu_perfil') }}" class="btn btn-outline-dark btn-sm btn-custom me-2">
-                    <i class="bi bi-person-circle me-1"></i> Meu Cadastro
-                </a>
+                <!-- Botão "Meu Cadastro" visível APENAS para Líder e Usuário comum -->
+                {% if current_user.tipo != 'MASTER' %}
+                    <a href="{{ url_for('members.meu_perfil') }}" class="btn btn-outline-dark btn-sm btn-custom me-2">
+                        <i class="bi bi-person-circle me-1"></i> Meu Cadastro
+                    </a>
+                {% endif %}
 
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm btn-custom">
                     <i class="bi bi-box-arrow-right me-1"></i> Sair
@@ -169,7 +171,6 @@
 
         <!-- Cards de Estatísticas / Ações Rápidas -->
         <div class="row">
-            <!-- Todos veem Membros e Presença, mas o Líder foca no seu escopo -->
             <div class="col-md-4">
                 <div class="card-custom stat-card">
                     <div class="stat-info">
@@ -200,7 +201,6 @@
                 </a>
             </div>
 
-            <!-- Relatórios: Visível apenas para Master ou se quiser liberar para Líder também -->
             <div class="col-md-4">
                 <div class="card-custom stat-card">
                     <div class="stat-info">
@@ -217,7 +217,7 @@
             </div>
         </div>
 
-        <!-- Seção Inferior: Diferente para Líder e Master -->
+        <!-- Seção Inferior -->
         <div class="row">
             <div class="col-md-6">
                 <div class="card-custom">
