@@ -81,7 +81,7 @@
                         <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-calendar-event me-2"></i>{{ evento.nome }}</h5>
                         <div class="d-flex gap-2">
                             <span class="badge bg-secondary">Total Exibidos: {{ membros|length }}</span>
-                            <span class="badge bg-success">Presentes: {{ presencas_atuais.values()|select('equalto', true)|list|length }}</span>
+                            <span class="badge bg-success">Presentes: {{ total_presentes_filtrados }}</span>
                         </div>
                     </div>
                     <div class="card-body p-0">

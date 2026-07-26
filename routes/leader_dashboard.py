@@ -36,7 +36,6 @@ def dashboard():
             "porcentagem": porcentagem
         })
     
-    # === CORRIGIDO AQUI ===
     # Ordena por presenças, porcentagem e desempata pelo ID do membro (Ordem de cadastro)
     ranking_calculado.sort(key=lambda x: (-x["presencas"], -x["porcentagem"], x["member"].id))
     
@@ -123,6 +122,10 @@ def chamada(event_id):
         
     presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
     
+    # === CONTAGEM CORRIGIDA PARA O FILTRO ===
+    # Conta apenas os presentes que pertencem aos membros listados na tela (respeitando o filtro)
+    total_presentes_filtrados = sum(1 for m in membros if presencas_atuais.get(m.id, False))
+    
     return render_template(
         'realizar_chamada.html', 
         evento=evento, 
@@ -130,5 +133,6 @@ def chamada(event_id):
         membros=membros, 
         presencas_atuais=presencas_atuais,
         departamentos=departamentos,
-        departamento_filtro=departamento_filtro
+        departamento_filtro=departamento_filtro,
+        total_presentes_filtrados=total_presentes_filtrados
     )
