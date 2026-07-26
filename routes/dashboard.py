@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from models import db
 from models.member import Member
 from models.attendance import Event, Attendance
-from models.notice import Notice  # <--- Importação do model de avisos
+from models.notice import Notice
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -26,7 +26,6 @@ def get_daily_quote():
 def index():
     frase_motivacional = get_daily_quote()
 
-    # Busca os avisos ativos para exibir aos usuários de forma segura
     avisos = []
     try:
         avisos = Notice.query.filter_by(ativo=True).order_by(Notice.data_criacao.desc()).all()
@@ -35,11 +34,11 @@ def index():
 
     user_tipo = getattr(current_user, 'tipo', None)
 
-    # 1. 👑 Se for MASTER, carrega os dados administrativos normais
+    # 1. 👑 Se for MASTER
     if user_tipo == 'MASTER':
         total_membros = Member.query.filter_by(ativo=True).count()
         total_ebds = Event.query.count()
-        total_presencas = Attendance.query.count()
+        total_presencas = Attendance.query.filter_by(presente=True).count()
         
         media_presenca = round(total_presencas / total_ebds, 1) if total_ebds > 0 else 0
 
@@ -47,7 +46,7 @@ def index():
         relatorio_rapido = []
         
         for ebd in ebds:
-            qtd_presentes = Attendance.query.filter_by(event_id=ebd.id).count()
+            qtd_presentes = Attendance.query.filter_by(event_id=ebd.id, presente=True).count()
             relatorio_rapido.append({
                 "nome": ebd.nome,
                 "data": ebd.data.strftime("%d/%m/%Y"),
@@ -68,11 +67,11 @@ def index():
             avisos=todos_avisos
         )
 
-    # 2. 🛡️ Se for LÍDER, carrega o painel exclusivo do líder
+    # 2. 🛡️ Se for LÍDER
     if user_tipo == 'LIDER':
         total_membros = Member.query.filter_by(ativo=True).count()
         total_ebds = Event.query.count()
-        total_presencas = Attendance.query.count()
+        total_presencas = Attendance.query.filter_by(presente=True).count()
         
         media_presenca = round(total_presencas / total_ebds, 1) if total_ebds > 0 else 0
 
@@ -80,7 +79,7 @@ def index():
         relatorio_rapido = []
         
         for ebd in ebds:
-            qtd_presentes = Attendance.query.filter_by(event_id=ebd.id).count()
+            qtd_presentes = Attendance.query.filter_by(event_id=ebd.id, presente=True).count()
             relatorio_rapido.append({
                 "nome": ebd.nome,
                 "data": ebd.data.strftime("%d/%m/%Y"),
@@ -96,7 +95,7 @@ def index():
             avisos=avisos
         )
 
-    # 3. 👤 Se for usuário COMUM (USER), exibe o painel do membro
+    # 3. 👤 Se for usuário COMUM (USER)
     membro_vinculado = None
     if hasattr(current_user, 'cpf') and current_user.cpf:
         membro_vinculado = Member.query.filter_by(cpf=current_user.cpf).first()
@@ -106,7 +105,8 @@ def index():
         
     real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', current_user.id)
     
-    presencas_usuario = Attendance.query.filter_by(member_id=real_member_id).join(Event).order_by(Event.data.desc()).all()
+    query_presencas_usuario = Attendance.query.filter_by(member_id=real_member_id, presente=True)
+    presencas_usuario = query_presencas_usuario.join(Event).order_by(Event.data.desc()).all()
     
     dias_comparecidos = []
     for p in presencas_usuario:
@@ -117,30 +117,39 @@ def index():
             })
 
     total_presencas_usuario = len(dias_comparecidos)
-    total_ebds_geral = Event.query.count()
-    total_faltas_usuario = total_ebds_geral - total_presencas_usuario
-    
-    if total_faltas_usuario < 0:
-        total_faltas_usuario = 0 
+    total_ebds_geral = Event.query.count() or 0
+    total_faltas_usuario = max(0, total_ebds_geral - total_presencas_usuario)
 
-    ranking_dados = db.session.query(
-        Member.id,
-        Member.nome,
-        Member.departamento,
-        db.func.count(Attendance.id).label('total')
-    ).join(Attendance, Member.id == Attendance.member_id).group_by(Member.id).order_by(db.desc('total')).all()
+    # Garante que pega todos os membros (removendo o filtro restritivo caso haja registros mal formatados, ou trazendo todos onde ativo não seja explicitamente False)
+    members_ativos = Member.query.filter((Member.ativo == True) | (Member.ativo == None)).all()
+    
+    lista_ranking = []
+    for m in members_ativos:
+        p_count = Attendance.query.filter_by(member_id=m.id, presente=True).count()
+        porcentagem = round((p_count / total_ebds_geral) * 100, 1) if total_ebds_geral > 0 else 0
+        
+        lista_ranking.append({
+            "member_id": m.id,
+            "nome": m.nome,
+            "departamento": m.departamento if m.departamento else "-",
+            "total": p_count,
+            "porcentagem": porcentagem
+        })
+
+    # Ordenação exata: 1º Presenças desc, 2º Porcentagem desc, 3º Nome A-Z
+    lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["nome"]))
 
     ranking_completo = []
     posicao_usuario = "-"
     
-    for index, item in enumerate(ranking_dados, start=1):
+    for index, r in enumerate(lista_ranking, start=1):
         ranking_completo.append({
             "posicao": index,
-            "nome": item.nome,
-            "departamento": item.departamento if item.departamento else "-",
-            "total": item.total
+            "nome": r["nome"],
+            "departamento": r["departamento"],
+            "total": r["total"]
         })
-        if item.id == real_member_id:
+        if r["member_id"] == real_member_id:
             posicao_usuario = index
 
     return render_template(
@@ -155,8 +164,6 @@ def index():
         avisos=avisos
     )
 
-
-# --- Rotas Administrativas para Gerenciar Avisos ---
 
 @dashboard_bp.route("/admin/avisos/novo", methods=["POST"])
 @login_required

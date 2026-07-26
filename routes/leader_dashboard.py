@@ -18,29 +18,27 @@ def dashboard():
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
     
-    # Total de EBDs cadastradas no sistema (mesma lógica usada no relatorio do Master)
     total_ebds = Event.query.count() or 0
-    
-    # Busca todos os membros ativos
     members = Member.query.filter_by(ativo=True).all()
     
-    ranking_calculado = []
+    relatorio_membros = []
     for member in members:
-        # Conta exatamente igual ao relatório do master (apenas onde presente=True)
         presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
         porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
         
-        ranking_calculado.append({
+        relatorio_membros.append({
             "member": member,
             "presencas": presencas,
             "porcentagem": porcentagem
         })
-    
-    # Ordena exatamente igual ao relatório do Master: primeiro por presenças (desc), depois por porcentagem (desc) e por fim alfabético pelo nome
-    ranking_calculado.sort(key=lambda x: (x["presencas"], x["porcentagem"], x["member"].nome), reverse=True)
-    
-    # Formata para o template do líder esperar (passando tuplas no formato [ (Member, total_presencas), ... ])
-    ranking_membros = [(item["member"], item["presencas"]) for item in ranking_calculado]
+
+    # ORDENAÇÃO CORRETA DO RANKING: 
+    # 1º Maior número de presenças (-x["presencas"])
+    # 2º Maior porcentagem (-x["porcentagem"])
+    # 3º Nome em ordem alfabética (x["member"].nome) apenas em caso de empate total
+    relatorio_membros.sort(key=lambda x: (-x["presencas"], -x["porcentagem"], x["member"].nome))
+
+    ranking_membros = [(item["member"], item["presencas"]) for item in relatorio_membros]
 
     return render_template(
         'dashboard_lider.html', 
