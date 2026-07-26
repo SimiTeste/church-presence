@@ -119,10 +119,18 @@
                 <span class="text-muted small me-3 d-none d-md-inline">
                     {% if current_user.tipo == 'LIDER' %}
                         Painel do Líder ({{ current_user.departamento if current_user.departamento else 'Geral' }})
+                    {% elif current_user.tipo == 'USER' %}
+                        Painel do Membro
                     {% else %}
                         Painel Administrativo (Master)
                     {% endif %}
                 </span>
+                
+                <!-- Botão para acessar o próprio perfil -->
+                <a href="{{ url_for('members.meu_perfil') }}" class="btn btn-outline-dark btn-sm btn-custom me-2">
+                    <i class="bi bi-person-circle me-1"></i> Meu Cadastro
+                </a>
+
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm btn-custom">
                     <i class="bi bi-box-arrow-right me-1"></i> Sair
                 </a>
@@ -151,6 +159,8 @@
             <p class="mb-0 text-white-50" style="font-size: 14px;">
                 {% if current_user.tipo == 'LIDER' %}
                     Bem-vindo ao seu ambiente de liderança. Aqui você pode realizar a chamada e acompanhar os membros sob sua responsabilidade.
+                {% elif current_user.tipo == 'USER' %}
+                    Bem-vindo ao seu painel. Aqui você pode manter seus dados atualizados e acompanhar avisos da igreja.
                 {% else %}
                     Bem-vindo ao painel administrativo geral da Ad Brás - Jardim Califórnia.
                 {% endif %}
@@ -216,6 +226,8 @@
                         Sistema de gestão de chamadas e presença da <strong>Ad Brás - Jardim Califórnia</strong>. 
                         {% if current_user.tipo == 'LIDER' %}
                             Como líder do departamento <strong>{{ current_user.departamento if current_user.departamento else 'Geral' }}</strong>, utilize os atalhos acima para fazer a chamada dos seus liderados.
+                        {% elif current_user.tipo == 'USER' %}
+                            Utilize o botão superior "Meu Cadastro" para manter suas informações pessoais atualizadas na base de dados da igreja.
                         {% else %}
                             Utilize os atalhos acima para gerenciar os cadastros da igreja, realizar as chamadas dos cultos ou acompanhar os relatórios detalhados.
                         {% endif %}
@@ -223,7 +235,7 @@
                 </div>
             </div>
 
-            <!-- Bloco de Avisos: Restrito ou customizado para o Master (ou exibido de forma que o líder apenas leia) -->
+            <!-- Bloco de Avisos -->
             <div class="col-md-6">
                 <div class="card-custom">
                     <h5 class="section-title"><i class="bi bi-megaphone-fill me-2"></i>Quadro de Avisos</h5>

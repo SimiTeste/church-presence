@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from models import db
 from models.member import Member
 from models.user import User  # <--- Importação essencial para sincronizar o login
@@ -121,7 +121,6 @@ def edit(id):
 @login_required
 def delete(id):
     member = Member.query.get_or_404(id)
-    # Opcional: se quiser remover o login junto ou apenas o membro
     user_obj = User.query.filter_by(cpf=member.cpf).first()
     if user_obj and user_obj.tipo != "MASTER":
         db.session.delete(user_obj)
@@ -130,3 +129,26 @@ def delete(id):
     db.session.commit()
     flash('Membro excluído com sucesso!', 'success')
     return redirect(url_for('members.index'))
+
+@members_bp.route('/meu-perfil', methods=['GET', 'POST'])
+@login_required
+def meu_perfil():
+    # Busca o membro logado utilizando o CPF do usuário atual da sessão
+    member = Member.query.filter_by(cpf=current_user.cpf).first_or_404()
+    
+    if request.method == 'POST':
+        # Atualiza os dados permitidos para alteração autônoma do próprio usuário
+        member.nome = request.form.get('nome')
+        member.telefone = request.form.get('telefone')
+        
+        # Sincroniza instantaneamente as alterações na tabela User correspondente
+        user_obj = User.query.filter_by(cpf=member.cpf).first()
+        if user_obj:
+            user_obj.nome = member.nome
+            db.session.add(user_obj)
+            
+        db.session.commit()
+        flash('Seus dados foram atualizados com sucesso!', 'success')
+        return redirect(url_for('members.meu_perfil'))
+        
+    return render_template('meu_perfil.html', member=member)
