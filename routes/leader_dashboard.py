@@ -94,14 +94,9 @@ def chamada(event_id):
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
             
-            # Identifica explicitamente se o campo veio no envio do form daquela linha específica
-            if nome_campo in request.form:
-                status = True if request.form.get(nome_campo) in ['true', 'on', '1', 'True'] else True
-            else:
-                # Se o checkbox estava na tela mas foi desmarcado, ele é False. 
-                # Se ele nem estava na tela (devido ao filtro), nós NÃO mexemos nele para preservar os outros departamentos!
-                # Como o loop roda sobre 'membros' da tela atual, quem está na tela visível é atualizado corretamente:
-                status = False
+            # CORREÇÃO: Se o checkbox vem no formulário, significa que foi marcado (True). 
+            # Se não vem, o navegador ocultou porque o switch estava desligado (False).
+            status = nome_campo in request.form
             
             att = Attendance.query.filter_by(event_id=evento.id, member_id=membro.id).first()
             if att:
