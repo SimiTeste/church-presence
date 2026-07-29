@@ -15,32 +15,44 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-book-fill text-success"></i> Desenvolvimento Cristão</h2>
-            <p class="text-muted">Trilhas de estudo bíblico, doutrina, liderança e crescimento espiritual (20+ módulos disponíveis).</p>
+            <p class="text-muted">Trilhas de estudo bíblico, doutrina, liderança e crescimento espiritual. Acesse os materiais recomendados.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
-                "Panorama do Antigo Testamento", "Panorama do Novo Testamento", 
-                "Teologia Sistemática Fundamental", "Hermenêutica: A Arte de Interpretar a Bíblia", 
-                "Homilética: A Arte de Pregar a Palavra", "Liderança Cristã Servidora", 
-                "Discipulado Eficaz na Igreja Local", "Fundamentos da Doutrina Cristã", 
-                "A Vida de Oração e Intimidade com Deus", "Evangelismo e Missões Urbanas", 
-                "História da Igreja Cristã", "Guerra Espiritual e Batalha na Fé", 
-                "A Família sob a Ótica Bíblica", "Gestão de Ministérios e EBD", 
-                "Apologética: Defendendo a Fé Cristã", "Os Dons Espirituais no Corpo de Cristo", 
-                "O Fruto do Espírito na Prática Diária", "Finanças à Luz da Bíblia", 
-                "Aconselhamento Pastoral Básico", "Escatologia: O Estudo das Últimas Coisas"
+                ("Panorama do Antigo Testamento", "https://www.bibliaon.com/"),
+                ("Panorama do Novo Testamento", "https://www.bibliaon.com/"),
+                ("Teologia Sistemática Fundamental", "https://www.teologia.com.br/"),
+                ("Hermenêutica: A Arte de Interpretar a Bíblia", "https://www.bibliaon.com/"),
+                ("Homilética: A Arte de Pregar a Palavra", "https://www.bibliaon.com/"),
+                ("Liderança Cristã Servidora", "https://www.bibliaon.com/"),
+                ("Discipulado Eficaz na Igreja Local", "https://www.bibliaon.com/"),
+                ("Fundamentos da Doutrina Cristã", "https://www.bibliaon.com/"),
+                ("A Vida de Oração e Intimidade com Deus", "https://www.bibliaon.com/"),
+                ("Evangelismo e Missões Urbanas", "https://www.bibliaon.com/"),
+                ("História da Igreja Cristã", "https://www.bibliaon.com/"),
+                ("Guerra Espiritual e Batalha na Fé", "https://www.bibliaon.com/"),
+                ("A Família sob a Ótica Bíblica", "https://www.bibliaon.com/"),
+                ("Gestão de Ministérios e EBD", "https://www.bibliaon.com/"),
+                ("Apologética: Defendendo a Fé Cristã", "https://www.bibliaon.com/"),
+                ("Os Dons Espirituais no Corpo de Cristo", "https://www.bibliaon.com/"),
+                ("O Fruto do Espírito na Prática Diária", "https://www.bibliaon.com/"),
+                ("Finanças à Luz da Bíblia", "https://www.bibliaon.com/"),
+                ("Aconselhamento Pastoral Básico", "https://www.bibliaon.com/"),
+                ("Escatologia: O Estudo das Últimas Coisas", "https://www.bibliaon.com/")
             ] %}
             
-            {% for curso in cursos %}
+            {% for nome, link in cursos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
                     <div>
                         <span class="badge bg-success-subtle text-success mb-2">EBD • Trilha Cristã</span>
-                        <h5 class="fw-bold text-dark fs-6">{{ curso }}</h5>
+                        <h5 class="fw-bold text-dark fs-6">{{ nome }}</h5>
                         <p class="text-muted small mb-3">Módulo estruturado • Aulas em vídeo e apostilas.</p>
                     </div>
-                    <button class="btn btn-outline-success btn-sm w-100" onclick="alert('Iniciando estudos de: {{ curso }}...')">Acessar Conteúdo</button>
+                    <a href="{{ link }}" target="_blank" class="btn btn-outline-success btn-sm w-100">
+                        <i class="bi bi-box-arrow-up-right"></i> Acessar Conteúdo Original
+                    </a>
                 </div>
             </div>
             {% endfor %}

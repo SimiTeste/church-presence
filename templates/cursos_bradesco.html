@@ -15,32 +15,44 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-mortarboard-fill text-primary"></i> Cursos Fundação Bradesco</h2>
-            <p class="text-muted">Capacitações profissionais em tecnologia, informática e administração (20+ cursos disponíveis).</p>
+            <p class="text-muted">Capacitações profissionais na Escola Virtual. Clique em cada card para ir direto à plataforma oficial de aulas.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
-                "Fundamentos de Informática", "Excel Avançado: Gráficos e Dashboards", 
-                "Introdução à Lógica de Programação", "Desenvolvimento Web com HTML e CSS", 
-                "Banco de Dados e SQL Básico", "Segurança da Informação", 
-                "Gestão de Projetos com Metodologias Ágeis", "Introdução à Inteligência Artificial", 
-                "Python para Análise de Dados", "Administração Financeira Básica", 
-                "Comunicação Escrita no Ambiente Corporativo", "Inglês Instrumental", 
-                "Atendimento e Técnicas de Vendas", "Ferramentas de Nuvem (Cloud Computing)", 
-                "Power BI para Iniciantes", "Gestão de Processos de Negócio", 
-                "Arquitetura de Computadores", "Redes de Computadores Fundamentos", 
-                "Java Orientado a Objetos", "Inovação Tecnológica e Mercado"
+                ("Fundamentos de Informática", "https://www.ev.org.br/"),
+                ("Excel Avançado: Gráficos e Dashboards", "https://www.ev.org.br/cursos/microsoft-excel-2016-basico"),
+                ("Introdução à Lógica de Programação", "https://www.ev.org.br/"),
+                ("Desenvolvimento Web com HTML e CSS", "https://www.ev.org.br/"),
+                ("Banco de Dados e SQL Básico", "https://www.ev.org.br/"),
+                ("Segurança da Informação", "https://www.ev.org.br/"),
+                ("Gestão de Projetos com Metodologias Ágeis", "https://www.ev.org.br/"),
+                ("Introdução à Inteligência Artificial", "https://www.ev.org.br/"),
+                ("Python para Análise de Dados", "https://www.ev.org.br/"),
+                ("Administração Financeira Básica", "https://www.ev.org.br/"),
+                ("Comunicação Escrita no Ambiente Corporativo", "https://www.ev.org.br/"),
+                ("Inglês Instrumental", "https://www.ev.org.br/"),
+                ("Atendimento e Técnicas de Vendas", "https://www.ev.org.br/"),
+                ("Ferramentas de Nuvem (Cloud Computing)", "https://www.ev.org.br/"),
+                ("Power BI para Iniciantes", "https://www.ev.org.br/"),
+                ("Gestão de Processos de Negócio", "https://www.ev.org.br/"),
+                ("Arquitetura de Computadores", "https://www.ev.org.br/"),
+                ("Redes de Computadores Fundamentos", "https://www.ev.org.br/"),
+                ("Java Orientado a Objetos", "https://www.ev.org.br/"),
+                ("Inovação Tecnológica e Mercado", "https://www.ev.org.br/")
             ] %}
             
-            {% for curso in cursos %}
+            {% for nome, link in cursos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
                     <div>
                         <span class="badge bg-info-subtle text-dark mb-2">Fundação Bradesco • Online</span>
-                        <h5 class="fw-bold text-dark fs-6">{{ curso }}</h5>
+                        <h5 class="fw-bold text-dark fs-6">{{ nome }}</h5>
                         <p class="text-muted small mb-3">Carga horária: 20h a 40h • Certificado oficial.</p>
                     </div>
-                    <button class="btn btn-outline-primary btn-sm w-100" onclick="alert('Redirecionando para o ambiente de aula de {{ curso }}...')">Acessar Curso</button>
+                    <a href="{{ link }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-box-arrow-up-right"></i> Acessar Curso Oficial
+                    </a>
                 </div>
             </div>
             {% endfor %}

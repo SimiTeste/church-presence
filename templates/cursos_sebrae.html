@@ -15,32 +15,44 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-briefcase-fill text-primary"></i> Cursos Sebrae</h2>
-            <p class="text-muted">Lista completa de capacitações em empreendedorismo, gestão e negócios (20+ cursos disponíveis).</p>
+            <p class="text-muted">Lista completa de capacitações em empreendedorismo, gestão e negócios. Clique em cada card para acessar diretamente a página oficial de inscrição.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
-                "Gestão Financeira para Pequenas Empresas", "Como Criar o seu Modelo de Negócios (Canvas)", 
-                "Marketing Digital para o seu Negócio", "Controle de Fluxo de Caixa na Prática", 
-                "Atendimento ao Cliente: A Chave do Sucesso", "Liderança e Gestão de Equipes", 
-                "Planejamento Estratégico para Empreendedores", "Como Vender Mais e Melhor", 
-                "Formação de Preço de Venda", "Inovação e Criatividade nos Negócios", 
-                "Gestão de Pessoas e Talentos", "Como Abrir o seu Próprio Negócio", 
-                "Comércio Eletrônico: Por Onde Começar", "Logística e Gestão de Estoques", 
-                "Negociação Eficaz para Empreendedores", "Redes Sociais para Empresas", 
-                "Responsabilidade Social Empresarial", "Tributação para Micro e Pequenas Empresas", 
-                "Gestão da Qualidade Total", "Franquias: Como Comprar ou Expandir"
+                ("Gestão Financeira para Pequenas Empresas", "https://loja.sebrae.com.br/passo-a-passo-para-alcancar-o-sucesso-financeiro-1-372000019237"),
+                ("Como Criar o seu Modelo de Negócios (Canvas)", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Marketing Digital para o seu Negócio", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Controle de Fluxo de Caixa na Prática", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Atendimento ao Cliente: A Chave do Sucesso", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Liderança e Gestão de Equipes", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Planejamento Estratégico para Empreendedores", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Como Vender Mais e Melhor", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Formação de Preço de Venda", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Inovação e Criatividade nos Negócios", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Gestão de Pessoas e Talentos", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Como Abrir o seu Próprio Negócio", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Comércio Eletrônico: Por Onde Começar", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Logística e Gestão de Estoques", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Negociação Eficaz para Empreendedores", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Redes Sociais para Empresas", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Responsabilidade Social Empresarial", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Tributação para Micro e Pequenas Empresas", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Gestão da Qualidade Total", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
+                ("Franquias: Como Comprar ou Expandir", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline")
             ] %}
             
-            {% for curso in cursos %}
+            {% for nome, link in cursos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
                     <div>
                         <span class="badge bg-primary-subtle text-primary mb-2">Sebrae • Online</span>
-                        <h5 class="fw-bold text-dark fs-6">{{ curso }}</h5>
+                        <h5 class="fw-bold text-dark fs-6">{{ nome }}</h5>
                         <p class="text-muted small mb-3">Carga horária: 15h a 30h • Certificado incluso.</p>
                     </div>
-                    <button class="btn btn-outline-primary btn-sm w-100" onclick="alert('Redirecionando para o ambiente de aula de {{ curso }}...')">Acessar Curso</button>
+                    <a href="{{ link }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-box-arrow-up-right"></i> Acessar Curso Oficial
+                    </a>
                 </div>
             </div>
             {% endfor %}
