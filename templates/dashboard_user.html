@@ -201,7 +201,8 @@
                     </thead>
                     <tbody>
                         {% if ranking_completo %}
-                            {% for r in ranking_completo %}
+                            <!-- Exibe inicialmente apenas os 10 primeiros -->
+                            {% for r in ranking_completo[:10] %}
                             <tr>
                                 <td class="fw-bold">
                                     {% if r.posicao == 1 %}
@@ -219,6 +220,30 @@
                                 <td class="text-center fw-bold text-success fs-6">{{ r.total }}</td>
                             </tr>
                             {% endfor %}
+
+                            <!-- O restante dos membros (do 11º em diante) fica colapsado -->
+                            {% if ranking_completo|length > 10 %}
+                                <tbody class="collapse" id="rankingCompletoUsuario">
+                                    {% for r in ranking_completo[10:] %}
+                                    <tr>
+                                        <td class="fw-bold">
+                                            {% if r.posicao == 1 %}
+                                                <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-award-fill me-1"></i> 1º</span>
+                                            {% elif r.posicao == 2 %}
+                                                <span class="badge bg-secondary px-2 py-1"><i class="bi bi-award me-1"></i> 2º</span>
+                                            {% elif r.posicao == 3 %}
+                                                <span class="badge bg-danger px-2 py-1"><i class="bi bi-award me-1"></i> 3º</span>
+                                            {% else %}
+                                                {{ r.posicao }}º
+                                            {% endif %}
+                                        </td>
+                                        <td class="fw-semibold text-dark">{{ r.nome }}</td>
+                                        <td><span class="badge bg-light text-dark border px-2 py-1">{{ r.departamento }}</span></td>
+                                        <td class="text-center fw-bold text-success fs-6">{{ r.total }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            {% endif %}
                         {% else %}
                             <tr>
                                 <td colspan="4" class="text-center text-muted py-4">Nenhum registro no ranking ainda.</td>
@@ -227,6 +252,30 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Botão Ver Mais / Recolher -->
+            {% if ranking_completo|length > 10 %}
+            <div class="text-center mt-3">
+                <button class="btn btn-outline-dark btn-sm btn-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#rankingCompletoUsuario" aria-expanded="false" aria-controls="rankingCompletoUsuario" id="btnVerMaisUsuario">
+                    <i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_completo|length }} membros)
+                </button>
+            </div>
+            
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const btn = document.getElementById('btnVerMaisUsuario');
+                    const collapseElement = document.getElementById('rankingCompletoUsuario');
+                    if (btn && collapseElement) {
+                        collapseElement.addEventListener('show.bs.collapse', function () {
+                            btn.innerHTML = '<i class="bi bi-chevron-up me-1"></i> Recolher ranking';
+                        });
+                        collapseElement.addEventListener('hide.bs.collapse', function () {
+                            btn.innerHTML = '<i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_completo|length }} membros)';
+                        });
+                    }
+                });
+            </script>
+            {% endif %}
         </div>
 
     </div>
