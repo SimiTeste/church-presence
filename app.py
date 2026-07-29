@@ -9,6 +9,7 @@ from models.attendance import Event, Attendance
 from models.notice import Notice
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from sqlalchemy.exc import OperationalError
 
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
@@ -54,8 +55,11 @@ def index():
 def atualizar_banco_forçado():
     try:
         db.create_all()
-        db.session.execute(db.text('ALTER TABLE attendances ADD COLUMN IF NOT EXISTS presente BOOLEAN DEFAULT FALSE;'))
-        db.session.commit()
+        try:
+            db.session.execute(db.text('ALTER TABLE attendances ADD COLUMN presente BOOLEAN DEFAULT FALSE;'))
+            db.session.commit()
+        except OperationalError:
+            db.session.rollback()
         return "Banco de dados atualizado, colunas e tabelas verificadas com sucesso!"
     except Exception as e:
         db.session.rollback()
@@ -64,8 +68,11 @@ def atualizar_banco_forçado():
 with app.app_context():
     db.create_all()
     try:
-        db.session.execute(db.text('ALTER TABLE attendances ADD COLUMN IF NOT EXISTS presente BOOLEAN DEFAULT FALSE;'))
-        db.session.commit()
+        try:
+            db.session.execute(db.text('ALTER TABLE attendances ADD COLUMN presente BOOLEAN DEFAULT FALSE;'))
+            db.session.commit()
+        except OperationalError:
+            db.session.rollback()
         
         master = User.query.filter_by(cpf="00000000000").first()
         if not master:
