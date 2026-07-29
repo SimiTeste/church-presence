@@ -5,6 +5,7 @@ from models.notice import Notice
 from models.member import Member
 from models.attendance import Event, Attendance
 from sqlalchemy import func
+import requests  # Importado para buscar o versículo via API externa
 
 leader_bp = Blueprint('leader', __name__)
 
@@ -42,11 +43,27 @@ def dashboard():
     # Formata para o template do líder esperar (passando tuplas no formato [ (Member, total_presencas), ... ])
     ranking_membros = [(item["member"], item["presencas"]) for item in ranking_calculado]
 
+    # === BUSCA DO VERSÍCULO DO DIA ===
+    try:
+        response = requests.get("https://bolsadepulgas.com.br/api/versiculo")
+        if response.status_code == 200:
+            dados_versiculo = response.json()
+            versiculo_texto = dados_versiculo.get('text', 'O Senhor é o meu pastor; nada me faltará.')
+            versiculo_referencia = dados_versiculo.get('reference', 'Salmos 23:1')
+        else:
+            versiculo_texto = "O Senhor é o meu pastor; nada me faltará."
+            versiculo_referencia = "Salmos 23:1"
+    except Exception:
+        versiculo_texto = "O Senhor é o meu pastor; nada me faltará."
+        versiculo_referencia = "Salmos 23:1"
+
     return render_template(
         'dashboard_lider.html', 
         avisos=avisos, 
         eventos=eventos, 
-        ranking_membros=ranking_membros
+        ranking_membros=ranking_membros,
+        versiculo_texto=versiculo_texto,
+        versiculo_referencia=versiculo_referencia
     )
 
 @leader_bp.route('/leader/avisos/novo', methods=['POST'])
