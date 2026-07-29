@@ -168,3 +168,11 @@ def index():
         versiculo_referencia=versiculo_do_dia["referencia"],
         avisos=avisos
     )
+
+@user_dashboard_bp.route('/trilha-membro')
+@login_required
+def trilha_membro():
+    """Exibe a Trilha de Desenvolvimento e Crescimento do Membro"""
+    if getattr(current_user, 'tipo', None) == 'MASTER':
+        return abort(403)
+    return render_template('trilha_membro.html', user=current_user)
