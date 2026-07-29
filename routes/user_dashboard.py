@@ -10,18 +10,39 @@ except ImportError:
 
 user_dashboard_bp = Blueprint("user_dashboard", __name__)
 
-def get_daily_quote():
-    quotes = [
-        "Dedicação e constância transformam o aprendizado em sabedoria.",
-        "Cada aula da EBD é uma semente plantada para o crescimento espiritual.",
-        "A fidelidade nas pequenas coisas prepara você para grandes propósitos.",
-        "Crescer em comunhão e conhecimento é o caminho para uma vida plena.",
-        "Sua presença faz a diferença na nossa comunidade de fé.",
-        "O conhecimento da Palavra ilumina os passos e fortalece a jornada.",
-        "Construir um futuro sólido começa com o aprendizado diário."
+def get_daily_verse():
+    versiculos = [
+        {
+            "texto": "Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho.",
+            "referencia": "Salmos 119:105"
+        },
+        {
+            "texto": "Confie no Senhor de todo o coração e não se apoie em sua própria inteligência.",
+            "referencia": "Provérbios 3:5"
+        },
+        {
+            "texto": "O Senhor é o meu pastor; de nada terei falta.",
+            "referencia": "Salmos 23:1"
+        },
+        {
+            "texto": "Tudo posso naquele que me fortalece.",
+            "referencia": "Filipenses 4:13"
+        },
+        {
+            "texto": "Entrega o teu caminho ao Senhor; confia nele, e ele o fará.",
+            "referencia": "Salmos 37:5"
+        },
+        {
+            "texto": "O Senhor é a minha luz e a minha salvação; a quem temerei?",
+            "referencia": "Salmos 27:1"
+        },
+        {
+            "texto": "Busquem, primeiro, o reino de Deus e a sua justiça, e todas essas coisas lhes serão acrescentadas.",
+            "referencia": "Mateus 6:33"
+        }
     ]
     day_of_year = datetime.date.today().timetuple().tm_yday
-    return quotes[day_of_year % len(quotes)]
+    return versiculos[day_of_year % len(versiculos)]
 
 @user_dashboard_bp.route("/user/dashboard")
 @login_required
@@ -30,7 +51,7 @@ def index():
     if getattr(current_user, 'tipo', None) == 'MASTER':
         return abort(403)
 
-    frase_motivacional = get_daily_quote()
+    versiculo_do_dia = get_daily_verse()
 
     # Busca os avisos ativos de forma segura caso a tabela ainda esteja se sincronizando
     avisos = []
@@ -55,7 +76,8 @@ def index():
             total_faltas=total_ebds,
             dias_comparecidos=[],
             ranking_completo=[],
-            frase_motivacional=frase_motivacional,
+            versiculo_texto=versiculo_do_dia["texto"],
+            versiculo_referencia=versiculo_do_dia["referencia"],
             avisos=avisos
         )
 
@@ -122,6 +144,7 @@ def index():
         total_faltas=total_faltas,
         dias_comparecidos=dias_comparecidos,
         ranking_completo=ranking_completo,
-        frase_motivacional=frase_motivacional,
+        versiculo_texto=versiculo_do_dia["texto"],
+        versiculo_referencia=versiculo_do_dia["referencia"],
         avisos=avisos
     )
