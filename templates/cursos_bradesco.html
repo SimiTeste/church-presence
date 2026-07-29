@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundação Bradesco - EBD System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>body { background-color: #f8f9fa; }</style>
+</head>
+<body>
+    <div class="container py-5">
+        <a href="{{ url_for('user_dashboard.index') }}" class="btn btn-outline-secondary btn-sm mb-4">
+            <i class="bi bi-arrow-left"></i> Voltar ao Painel
+        </a>
+        <div class="mb-4">
+            <h2 class="fw-bold text-dark"><i class="bi bi-mortarboard-fill text-primary"></i> Cursos Fundação Bradesco</h2>
+            <p class="text-muted">Capacitações profissionais em tecnologia, informática e administração (20+ cursos disponíveis).</p>
+        </div>
+
+        <div class="row g-3">
+            {% set cursos = [
+                "Fundamentos de Informática", "Excel Avançado: Gráficos e Dashboards", 
+                "Introdução à Lógica de Programação", "Desenvolvimento Web com HTML e CSS", 
+                "Banco de Dados e SQL Básico", "Segurança da Informação", 
+                "Gestão de Projetos com Metodologias Ágeis", "Introdução à Inteligência Artificial", 
+                "Python para Análise de Dados", "Administração Financeira Básica", 
+                "Comunicação Escrita no Ambiente Corporativo", "Inglês Instrumental", 
+                "Atendimento e Técnicas de Vendas", "Ferramentas de Nuvem (Cloud Computing)", 
+                "Power BI para Iniciantes", "Gestão de Processos de Negócio", 
+                "Arquitetura de Computadores", "Redes de Computadores Fundamentos", 
+                "Java Orientado a Objetos", "Inovação Tecnológica e Mercado"
+            ] %}
+            
+            {% for curso in cursos %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="badge bg-info-subtle text-dark mb-2">Fundação Bradesco • Online</span>
+                        <h5 class="fw-bold text-dark fs-6">{{ curso }}</h5>
+                        <p class="text-muted small mb-3">Carga horária: 20h a 40h • Certificado oficial.</p>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="alert('Redirecionando para o ambiente de aula de {{ curso }}...')">Acessar Curso</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
