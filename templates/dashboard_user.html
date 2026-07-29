@@ -95,19 +95,22 @@
             <p class="text-muted mt-1" style="font-size: 14px;">Acompanhe sua jornada e frequências por aqui.</p>
         </div>
 
-        <!-- Card de Frase Motivacional Diária -->
+        <!-- Card de Versículo do Dia -->
         <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0 me-3 text-warning fs-3">
-                    <i class="bi bi-lightbulb-fill"></i>
+                    <i class="bi bi-book-half"></i>
                 </div>
                 <div>
                     <h6 class="text-uppercase fw-bold mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #94a3b8 !important;">
-                        Inspiração do Dia
+                        Versículo do Dia
                     </h6>
-                    <p class="mb-0 fw-medium" style="font-size: 15px; color: #f8fafc;">
-                        "{{ frase_motivacional }}"
+                    <p class="mb-1 fw-medium" style="font-size: 15px; color: #f8fafc;">
+                        "{{ versiculo_texto }}"
                     </p>
+                    <small class="fw-semibold text-warning" style="font-size: 13px;">
+                        — {{ versiculo_referencia }}
+                    </small>
                 </div>
             </div>
         </div>
