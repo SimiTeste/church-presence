@@ -15,31 +15,31 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-briefcase-fill text-primary"></i> Cursos Sebrae</h2>
-            <p class="text-muted">Lista completa de capacitações em empreendedorismo, gestão e negócios. Clique em cada card para acessar diretamente a página oficial de inscrição.</p>
+            <p class="text-muted">Capacitações com direcionamento direto para as respectivas páginas de inscrição e estudo.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
                 ("Gestão Financeira para Pequenas Empresas", "https://loja.sebrae.com.br/passo-a-passo-para-alcancar-o-sucesso-financeiro-1-372000019237"),
-                ("Como Criar o seu Modelo de Negócios (Canvas)", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Marketing Digital para o seu Negócio", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Controle de Fluxo de Caixa na Prática", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Atendimento ao Cliente: A Chave do Sucesso", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Liderança e Gestão de Equipes", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Planejamento Estratégico para Empreendedores", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Como Vender Mais e Melhor", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Formação de Preço de Venda", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Inovação e Criatividade nos Negócios", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Gestão de Pessoas e Talentos", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Como Abrir o seu Próprio Negócio", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Comércio Eletrônico: Por Onde Começar", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Logística e Gestão de Estoques", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Negociação Eficaz para Empreendedores", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Redes Sociais para Empresas", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Responsabilidade Social Empresarial", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Tributação para Micro e Pequenas Empresas", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Gestão da Qualidade Total", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline"),
-                ("Franquias: Como Comprar ou Expandir", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline")
+                ("Como Criar o seu Modelo de Negócios (Canvas)", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/como-criar-um-modelo-de-negocio,c056d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Marketing Digital para o seu Negócio", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/marketing-digital-para-o-seu-negocio,85f0d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Controle de Fluxo de Caixa na Prática", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/fluxo-de-caixa,7822d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Atendimento ao Cliente: A Chave do Sucesso", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/atendimento-ao-cliente,2b92d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Liderança e Gestão de Equipes", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/lideranca,34c2d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Planejamento Estratégico para Empreendedores", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/planejamento-estrategico,0533d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Como Vender Mais e Melhor", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/tecnicas-de-venda,1843d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Formação de Preço de Venda", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/formacao-de-preco-de-venda,9153d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Inovação e Criatividade nos Negócios", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/inovacao,6363d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Gestão de Pessoas e Talentos", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/gestao-de-pessoas,8273d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Como Abrir o seu Próprio Negócio", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/como-abrir-uma-empresa,5383d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Comércio Eletrônico: Por Onde Começar", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/comercio-eletronico,2793d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Logística e Gestão de Estoques", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/logistica,7393d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Negociação Eficaz para Empreendedores", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/negociacao,84a3d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Redes Sociais para Empresas", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/redes-sociais,95b3d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Responsabilidade Social Empresarial", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/sustentabilidade,06c3d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Tributação para Micro e Pequenas Empresas", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/tributacao,17d3d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Gestão da Qualidade Total", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/qualidade,28e3d35706567410VgnVCM1000004b00210aRCRD"),
+                ("Franquias: Como Comprar ou Expandir", "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline/franquias,39f3d35706567410VgnVCM1000004b00210aRCRD")
             ] %}
             
             {% for nome, link in cursos %}
@@ -51,7 +51,7 @@
                         <p class="text-muted small mb-3">Carga horária: 15h a 30h • Certificado incluso.</p>
                     </div>
                     <a href="{{ link }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
-                        <i class="bi bi-box-arrow-up-right"></i> Acessar Curso Oficial
+                        <i class="bi bi-box-arrow-up-right"></i> Acessar Curso Específico
                     </a>
                 </div>
             </div>
