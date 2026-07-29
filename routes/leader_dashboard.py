@@ -66,6 +66,15 @@ def dashboard():
         versiculo_referencia=versiculo_referencia
     )
 
+@leader_bp.route('/leader/trilha')
+@login_required
+def trilha():
+    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+        flash('Acesso negado. Área restrita.', 'danger')
+        return redirect(url_for('dashboard.index'))
+        
+    return render_template('trilha_lideranca.html')
+
 @leader_bp.route('/leader/avisos/novo', methods=['POST'])
 @login_required
 def criar_aviso():
