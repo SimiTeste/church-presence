@@ -183,7 +183,7 @@
             </div>
         </div>
 
-        <!-- TRILHA DE DESENVOLVIMENTO AGORA FICA AQUI EM CIMA (FORA DO LADO A LADO) -->
+        <!-- TRILHA DE DESENVOLVIMENTO ATUALIZADA -->
         <div class="card-custom mb-4">
             <div class="d-flex align-items-center mb-3">
                 <div class="bg-primary-subtle text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
@@ -191,32 +191,32 @@
                 </div>
                 <div>
                     <h5 class="fw-bold mb-0 text-dark" style="font-size: 16px;">Trilha de Desenvolvimento</h5>
-                    <p class="text-muted mb-0" style="font-size: 12px;">Planos de carreira, projetos e capacitação</p>
+                    <p class="text-muted mb-0" style="font-size: 12px;">Capacitação profissional e crescimento cristão</p>
                 </div>
             </div>
 
             <hr class="text-muted opacity-25">
 
             <div class="row g-3">
-                <!-- Item 1: Projetos Próprios -->
+                <!-- Item 1: Sebrae -->
                 <div class="col-md-4">
                     <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
                         <div class="d-flex align-items-center mb-2">
-                            <div class="me-3 text-dark fs-4">
-                                <i class="bi bi-code-square"></i>
+                            <div class="me-3 text-primary fs-4">
+                                <i class="bi bi-briefcase"></i>
                             </div>
                             <div>
-                                <h6 class="fw-semibold mb-0" style="font-size: 14px;">Projetos & Portfólio (SimiBank)</h6>
-                                <span class="text-muted" style="font-size: 12px;">Iniciativas práticas e aplicações</span>
+                                <h6 class="fw-semibold mb-0" style="font-size: 14px;">Sebrae</h6>
+                                <span class="text-muted" style="font-size: 12px;">Empreendedorismo e gestão</span>
                             </div>
                         </div>
                         <div class="mt-2 text-end">
-                            <a href="#" class="btn btn-sm btn-outline-dark px-3" style="font-size: 12px;">Acessar</a>
+                            <a href="{{ url_for('trilha.cursos_sebrae') }}" class="btn btn-sm btn-outline-primary px-3" style="font-size: 12px;">Ver Cursos</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Item 2: Cursos de Parceria -->
+                <!-- Item 2: Fundação Bradesco -->
                 <div class="col-md-4">
                     <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
                         <div class="d-flex align-items-center mb-2">
@@ -224,37 +224,37 @@
                                 <i class="bi bi-mortarboard"></i>
                             </div>
                             <div>
-                                <h6 class="fw-semibold mb-0" style="font-size: 14px;">Capacitação Profissional</h6>
-                                <span class="text-muted" style="font-size: 12px;">Sebrae & Fundação Bradesco</span>
+                                <h6 class="fw-semibold mb-0" style="font-size: 14px;">Fundação Bradesco</h6>
+                                <span class="text-muted" style="font-size: 12px;">Capacitação profissional</span>
                             </div>
                         </div>
                         <div class="mt-2 text-end">
-                            <a href="https://www.ev.org.br" target="_blank" class="btn btn-sm btn-outline-primary px-3" style="font-size: 12px;">Ver Cursos</a>
+                            <a href="{{ url_for('trilha.cursos_bradesco') }}" class="btn btn-sm btn-outline-primary px-3" style="font-size: 12px;">Ver Cursos</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Item 3: Escola de Líderes & EBD -->
+                <!-- Item 3: Desenvolvimento Cristão -->
                 <div class="col-md-4">
                     <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
                         <div class="d-flex align-items-center mb-2">
                             <div class="me-3 text-success fs-4">
-                                <i class="bi bi-journal-check"></i>
+                                <i class="bi bi-book"></i>
                             </div>
                             <div>
-                                <h6 class="fw-semibold mb-0" style="font-size: 14px;">Escola de Líderes & EBD</h6>
-                                <span class="text-muted" style="font-size: 12px;">Alinhamento e crescimento ministerial</span>
+                                <h6 class="fw-semibold mb-0" style="font-size: 14px;">Desenvolvimento Cristão</h6>
+                                <span class="text-muted" style="font-size: 12px;">Palavras da Bíblia e estudos</span>
                             </div>
                         </div>
                         <div class="mt-2 text-end">
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">Ativo</span>
+                            <a href="{{ url_for('trilha.desenvolvimento_cristao') }}" class="btn btn-sm btn-outline-success px-3" style="font-size: 12px;">Acessar</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RANKING GERAL AGORA OCUPA A LARGURA TOTAL ABAIXO -->
+        <!-- RANKING GERAL ABAIXO -->
         <div class="card-custom">
             <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">
                 <i class="bi bi-trophy me-2 text-warning"></i>Ranking Geral de Frequência
