@@ -117,6 +117,31 @@
             </p>
         </div>
 
+        <!-- Seção de Acesso à Trilha de Desenvolvimento -->
+        <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
+            <div class="row align-items-center">
+                <div class="col-md-8 mb-3 mb-md-0">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 text-warning fs-2">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-white mb-1">Trilha de Desenvolvimento e Liderança</h5>
+                            <p class="mb-0 text-white-50 small">
+                                Acompanhe os módulos de capacitação, crescimento ministerial e diretrizes para líderes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <!-- Ajuste a rota abaixo conforme o nome registrado no seu Blueprint/Flask -->
+                    <a href="{{ url_for('leader.trilha') }}" class="btn btn-warning btn-custom w-100 text-dark fw-bold">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Acessar Trilha
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- Card de Versículo do Dia -->
         <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
             <div class="d-flex align-items-center">
@@ -230,7 +255,7 @@
                                     {% else %} {{ loop.index }}º {% endif %}
                                 </td>
                                 <td class="fw-semibold text-dark">{{ membro.nome }}</td>
-                                <td>
+                                <td class="text-muted">
                                     {% if membro.departamento %}
                                         <span class="badge bg-light text-dark border">{{ membro.departamento }}</span>
                                     {% else %}
@@ -250,7 +275,7 @@
                                     <tr>
                                         <td class="ps-3 fw-bold">{{ loop.index + 10 }}º</td>
                                         <td class="fw-semibold text-dark">{{ membro.nome }}</td>
-                                        <td>
+                                        <td class="text-muted">
                                             {% if membro.departamento %}
                                                 <span class="badge bg-light text-dark border">{{ membro.departamento }}</span>
                                             {% else %}
