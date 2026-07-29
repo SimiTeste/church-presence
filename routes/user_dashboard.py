@@ -169,10 +169,26 @@ def index():
         avisos=avisos
     )
 
-@user_dashboard_bp.route('/trilha-membro')
+@user_dashboard_bp.route('/cursos/sebrae')
 @login_required
-def trilha_membro():
-    """Exibe a Trilha de Desenvolvimento e Crescimento do Membro"""
+def cursos_sebrae():
+    """Exibe os cursos disponíveis do Sebrae"""
     if getattr(current_user, 'tipo', None) == 'MASTER':
         return abort(403)
-    return render_template('trilha_membro.html', user=current_user)
+    return render_template('cursos_sebrae.html', user=current_user)
+
+@user_dashboard_bp.route('/cursos/bradesco')
+@login_required
+def cursos_bradesco():
+    """Exibe os cursos da Fundação Bradesco"""
+    if getattr(current_user, 'tipo', None) == 'MASTER':
+        return abort(403)
+    return render_template('cursos_bradesco.html', user=current_user)
+
+@user_dashboard_bp.route('/cursos/desenvolvimento-cristao')
+@login_required
+def desenvolvimento_cristao():
+    """Exibe a seção de Desenvolvimento Cristão"""
+    if getattr(current_user, 'tipo', None) == 'MASTER':
+        return abort(403)
+    return render_template('desenvolvimento_cristao.html', user=current_user)
