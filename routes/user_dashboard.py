@@ -1,5 +1,5 @@
 import datetime
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, flash
 from flask_login import login_required, current_user
 from models.member import Member
 from models.attendance import Event, Attendance
@@ -66,6 +66,26 @@ def index():
 
     total_ebds = Event.query.count() or 0
     
+    # --- VERIFICAÇÃO DO ÚLTIMO DOMINGO (NOTIFICAÇÃO ESTILO APP) ---
+    if membro:
+        # Pega o último evento cadastrado (mais recente)
+        ultimo_evento = Event.query.order_by(Event.data.desc(), Event.id.desc()).first()
+        if ultimo_evento:
+            att_ultimo = Attendance.query.filter_by(event_id=ultimo_evento.id, member_id=membro.id).first()
+            foi_presente = False
+            if att_ultimo:
+                if hasattr(att_ultimo, 'presente'):
+                    foi_presente = att_ultimo.presente
+                else:
+                    foi_presente = True
+
+            # Dispara a mensagem flash correspondente
+            if foi_presente:
+                flash("Parabéns! Que bom ter você na EBD do último domingo, você é incrível! 🌟", "app-success")
+            else:
+                flash("Sentimos sua falta na EBD do último domingo! Esperamos você na próxima. 💙", "app-warning")
+    # -------------------------------------------------------------
+
     # Se o membro não estiver cadastrado na tabela Member ainda, inicializa com valores zerados
     if not membro:
         return render_template(
