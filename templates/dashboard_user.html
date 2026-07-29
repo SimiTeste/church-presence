@@ -184,47 +184,29 @@
             </div>
         </div>
 
-        <!-- Tabela do Ranking Geral -->
-        <div class="card-custom">
-            <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">
-                <i class="bi bi-trophy me-2 text-warning"></i>Ranking Geral de Frequência
-            </h5>
-            <div class="table-responsive">
-                <table class="table align-middle mb-0" style="font-size: 14px;">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 100px;">Posição</th>
-                            <th>Nome do Membro</th>
-                            <th>Departamento</th>
-                            <th class="text-center" style="width: 120px;">Presenças</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if ranking_completo %}
-                            <!-- Exibe inicialmente apenas os 10 primeiros -->
-                            {% for r in ranking_completo[:10] %}
-                            <tr>
-                                <td class="fw-bold">
-                                    {% if r.posicao == 1 %}
-                                        <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-award-fill me-1"></i> 1º</span>
-                                    {% elif r.posicao == 2 %}
-                                        <span class="badge bg-secondary px-2 py-1"><i class="bi bi-award me-1"></i> 2º</span>
-                                    {% elif r.posicao == 3 %}
-                                        <span class="badge bg-danger px-2 py-1"><i class="bi bi-award me-1"></i> 3º</span>
-                                    {% else %}
-                                        {{ r.posicao }}º
-                                    {% endif %}
-                                </td>
-                                <td class="fw-semibold text-dark">{{ r.nome }}</td>
-                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ r.departamento }}</span></td>
-                                <td class="text-center fw-bold text-success fs-6">{{ r.total }}</td>
-                            </tr>
-                            {% endfor %}
-
-                            <!-- O restante dos membros (do 11º em diante) fica colapsado -->
-                            {% if ranking_completo|length > 10 %}
-                                <tbody class="collapse" id="rankingCompletoUsuario">
-                                    {% for r in ranking_completo[10:] %}
+        <!-- Linha dividindo a tela: Esquerda (Ranking) | Direita (Trilha de Desenvolvimento) -->
+        <div class="row">
+            
+            <!-- Coluna Esquerda: Tabela do Ranking Geral -->
+            <div class="col-lg-7">
+                <div class="card-custom h-100">
+                    <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">
+                        <i class="bi bi-trophy me-2 text-warning"></i>Ranking Geral de Frequência
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0" style="font-size: 14px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 100px;">Posição</th>
+                                    <th>Nome do Membro</th>
+                                    <th>Departamento</th>
+                                    <th class="text-center" style="width: 120px;">Presenças</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if ranking_completo %}
+                                    <!-- Exibe inicialmente apenas os 10 primeiros -->
+                                    {% for r in ranking_completo[:10] %}
                                     <tr>
                                         <td class="fw-bold">
                                             {% if r.posicao == 1 %}
@@ -242,40 +224,132 @@
                                         <td class="text-center fw-bold text-success fs-6">{{ r.total }}</td>
                                     </tr>
                                     {% endfor %}
-                                </tbody>
-                            {% endif %}
-                        {% else %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">Nenhum registro no ranking ainda.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+
+                                    <!-- O restante dos membros (do 11º em diante) fica colapsado -->
+                                    {% if ranking_completo|length > 10 %}
+                                        <tbody class="collapse" id="rankingCompletoUsuario">
+                                            {% for r in ranking_completo[10:] %}
+                                            <tr>
+                                                <td class="fw-bold">
+                                                    {% if r.posicao == 1 %}
+                                                        <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-award-fill me-1"></i> 1º</span>
+                                                    {% elif r.posicao == 2 %}
+                                                        <span class="badge bg-secondary px-2 py-1"><i class="bi bi-award me-1"></i> 2º</span>
+                                                    {% elif r.posicao == 3 %}
+                                                        <span class="badge bg-danger px-2 py-1"><i class="bi bi-award me-1"></i> 3º</span>
+                                                    {% else %}
+                                                        {{ r.posicao }}º
+                                                    {% endif %}
+                                                </td>
+                                                <td class="fw-semibold text-dark">{{ r.nome }}</td>
+                                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ r.departamento }}</span></td>
+                                                <td class="text-center fw-bold text-success fs-6">{{ r.total }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    {% endif %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">Nenhum registro no ranking ainda.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Botão Ver Mais / Recolher -->
+                    {% if ranking_completo|length > 10 %}
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-dark btn-sm btn-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#rankingCompletoUsuario" aria-expanded="false" aria-controls="rankingCompletoUsuario" id="btnVerMaisUsuario">
+                            <i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_completo|length }} membros)
+                        </button>
+                    </div>
+                    
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const btn = document.getElementById('btnVerMaisUsuario');
+                            const collapseElement = document.getElementById('rankingCompletoUsuario');
+                            if (btn && collapseElement) {
+                                collapseElement.addEventListener('show.bs.collapse', function () {
+                                    btn.innerHTML = '<i class="bi bi-chevron-up me-1"></i> Recolher ranking';
+                                });
+                                collapseElement.addEventListener('hide.bs.collapse', function () {
+                                    btn.innerHTML = '<i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_completo|length }} membros)';
+                                });
+                            }
+                        });
+                    </script>
+                    {% endif %}
+                </div>
             </div>
 
-            <!-- Botão Ver Mais / Recolher -->
-            {% if ranking_completo|length > 10 %}
-            <div class="text-center mt-3">
-                <button class="btn btn-outline-dark btn-sm btn-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#rankingCompletoUsuario" aria-expanded="false" aria-controls="rankingCompletoUsuario" id="btnVerMaisUsuario">
-                    <i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_completo|length }} membros)
-                </button>
+            <!-- Coluna Direita: Trilha de Desenvolvimento -->
+            <div class="col-lg-5">
+                <div class="card-custom h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <!-- Cabeçalho do Card com Ícone de Troféu -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary-subtle text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="bi bi-trophy-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark" style="font-size: 16px;">Trilha de Desenvolvimento</h5>
+                                <p class="text-muted mb-0" style="font-size: 12px;">Planos de carreira, projetos e capacitação</p>
+                            </div>
+                        </div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <!-- Lista de Itens da Trilha -->
+                        <div class="list-group list-group-flush">
+                            
+                            <!-- Item 1: Projetos Próprios -->
+                            <div class="list-group-item px-0 py-3 bg-transparent border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3 text-dark">
+                                        <i class="bi bi-code-square fs-5"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-semibold mb-0" style="font-size: 13px;">Projetos & Portfólio (SimiBank)</h6>
+                                        <span class="text-muted" style="font-size: 11px;">Iniciativas práticas e aplicações</span>
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-outline-dark py-0 px-2" style="font-size: 11px;">Acessar</a>
+                                </div>
+                            </div>
+
+                            <!-- Item 2: Cursos de Parceria (Sebrae / Fundação Bradesco) -->
+                            <div class="list-group-item px-0 py-3 bg-transparent border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3 text-primary">
+                                        <i class="bi bi-mortarboard fs-5"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-semibold mb-0" style="font-size: 13px;">Capacitação Profissional</h6>
+                                        <span class="text-muted" style="font-size: 11px;">Sebrae & Fundação Bradesco</span>
+                                    </div>
+                                    <a href="https://www.ev.org.br" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px;">Ver Cursos</a>
+                                </div>
+                            </div>
+
+                            <!-- Item 3: Trilha / Escola da Igreja -->
+                            <div class="list-group-item px-0 py-3 bg-transparent">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3 text-success">
+                                        <i class="bi bi-journal-check fs-5"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-semibold mb-0" style="font-size: 13px;">Escola de Líderes & EBD</h6>
+                                        <span class="text-muted" style="font-size: 11px;">Alinhamento e crescimento ministerial</span>
+                                    </div>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 10px;">Ativo</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    const btn = document.getElementById('btnVerMaisUsuario');
-                    const collapseElement = document.getElementById('rankingCompletoUsuario');
-                    if (btn && collapseElement) {
-                        collapseElement.addEventListener('show.bs.collapse', function () {
-                            btn.innerHTML = '<i class="bi bi-chevron-up me-1"></i> Recolher ranking';
-                        });
-                        collapseElement.addEventListener('hide.bs.collapse', function () {
-                            btn.innerHTML = '<i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_completo|length }} membros)';
-                        });
-                    }
-                });
-            </script>
-            {% endif %}
+
         </div>
 
     </div>
