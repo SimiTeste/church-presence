@@ -15,26 +15,26 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-briefcase-fill text-primary"></i> Cursos Sebrae</h2>
-            <p class="text-muted">Cursos oficiais e gratuitos do Sebrae SP com redirecionamento direto para a página de inscrição de cada capacitação.</p>
+            <p class="text-muted">Cursos oficiais e gratuitos do Sebrae com redirecionamento direto para a página de inscrição de cada capacitação.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
-                ("IA para gestão do pequeno empreendedor - Gestão de Pessoas", "https://digital.sebraesp.com.br/curso/ia-para-gestao-do-pequeno-empreendedor-gestao-de-pessoas"),
-                ("Atendimento ao Cliente", "https://digital.sebraesp.com.br/curso/atendimentoaocliente"),
-                ("Gestão Financeira", "https://digital.sebraesp.com.br/curso/gestao-financeira"),
-                ("Inteligência Emocional", "https://digital.sebraesp.com.br/curso/inteligencia-emocionall"),
-                ("Planejamento e Estratégias", "https://digital.sebraesp.com.br/curso/planejamento-e-estrategias"),
-                ("Recrutamento e Seleção", "https://digital.sebraesp.com.br/curso/recrutamento-e-selecao"),
-                ("Como Desenvolver Negócios Inovadores", "https://digital.sebraesp.com.br/curso/como-desenvolver-negocios-inovadores"),
-                ("Vendas: Como Ser um Vendedor de Sucesso", "https://digital.sebraesp.com.br/curso/vendas-como-ser-um-vendedor-de-sucesso")
+                ("IA para Gestão do Pequeno Empreendedor - Gestão de Pessoas", "https://loja.sebrae.com.br/gestao-de-pessoas-372000004965"),
+                ("Atendimento ao Cliente", "https://loja.sebrae.com.br/atendimento-ao-cliente-372000004944"),
+                ("Gestão Financeira", "https://loja.sebrae.com.br/passo-a-passo-para-alcancar-o-sucesso-financeiro-1-372000019237"),
+                ("Inteligência Emocional", "https://loja.sebrae.com.br/inteligencia-emocional-372000019053"),
+                ("Planejamento e Estratégias", "https://loja.sebrae.com.br/planejamento-estrategico-para-empresas-372000004951"),
+                ("Recrutamento e Seleção", "https://loja.sebrae.com.br/gestao-de-pessoas-372000004965"),
+                ("Como Desenvolver Negócios Inovadores", "https://loja.sebrae.com.br/inovacao-e-criatividade-nos-negocios-372000004962"),
+                ("Vendas: Como Ser um Vendedor de Sucesso", "https://loja.sebrae.com.br/tecnicas-de-venda-como-argumentar-e-vender-mais-372000004953")
             ] %}
             
             {% for nome, link in cursos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
                     <div>
-                        <span class="badge bg-primary-subtle text-primary mb-2">Sebrae SP • Online</span>
+                        <span class="badge bg-primary-subtle text-primary mb-2">Sebrae • Online</span>
                         <h5 class="fw-bold text-dark fs-6">{{ nome }}</h5>
                         <p class="text-muted small mb-3">Certificado oficial Sebrae • 100% Gratuito.</p>
                     </div>
