@@ -109,16 +109,18 @@
     <!-- Conteúdo Principal -->
     <div class="container my-4">
         
-        <!-- Saudação (Estilo Branco Padrão do Membro) -->
-        <div class="card-custom mb-4">
-            <h4 class="fw-bold mb-1" style="color: #0f172a;"><i class="bi bi-hand-wave me-2 text-warning"></i>Olá, {{ current_user.nome }}!</h4>
-            <p class="mb-0 text-muted" style="font-size: 14px;">
+        <!-- Saudação -->
+        <div class="alert alert-dark mb-4 p-4 rounded-3 text-white bg-dark">
+            <h4 class="fw-bold mb-1">
+                <i class="bi bi-hand-wave me-2"></i>Olá, <span style="color: #38bdf8;">{{ current_user.nome }}</span>!
+            </h4>
+            <p class="mb-0 text-white-50" style="font-size: 14px;">
                 Bem-vindo ao seu painel de liderança. Aqui você pode publicar avisos, acompanhar o histórico e realizar as chamadas dos cultos e eventos.
             </p>
         </div>
 
         <!-- Seção de Acesso à Trilha de Desenvolvimento -->
-        <div class="card-custom mb-4">
+        <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
             <div class="row align-items-center">
                 <div class="col-md-8 mb-3 mb-md-0">
                     <div class="d-flex align-items-center">
@@ -126,15 +128,16 @@
                             <i class="bi bi-mortarboard-fill"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold mb-1" style="color: #0f172a;">Trilha de Desenvolvimento e Liderança</h5>
-                            <p class="mb-0 text-muted small">
+                            <h5 class="fw-bold text-white mb-1">Trilha de Desenvolvimento e Liderança</h5>
+                            <p class="mb-0 text-white-50 small">
                                 Acompanhe os módulos de capacitação, crescimento ministerial e diretrizes para líderes.
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end">
-                    <a href="{{ url_for('leader.trilha') }}" class="btn btn-dark-custom btn-custom w-100 fw-bold">
+                    <!-- Ajuste a rota abaixo conforme o nome registrado no seu Blueprint/Flask -->
+                    <a href="{{ url_for('leader.trilha') }}" class="btn btn-warning btn-custom w-100 text-dark fw-bold">
                         <i class="bi bi-arrow-right-circle me-1"></i> Acessar Trilha
                     </a>
                 </div>
@@ -142,16 +145,16 @@
         </div>
 
         <!-- Card de Versículo do Dia -->
-        <div class="card-custom mb-4">
+        <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0 me-3 text-warning fs-3">
                     <i class="bi bi-book-half"></i>
                 </div>
                 <div>
-                    <h6 class="text-uppercase fw-bold mb-1 text-muted" style="font-size: 11px; letter-spacing: 0.5px;">
+                    <h6 class="text-uppercase fw-bold mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #94a3b8 !important;">
                         Versículo do Dia
                     </h6>
-                    <p class="mb-1 fw-medium text-dark" style="font-size: 15px;">
+                    <p class="mb-1 fw-medium" style="font-size: 15px; color: #f8fafc;">
                         "{{ versiculo_texto }}"
                     </p>
                     <small class="fw-semibold text-warning" style="font-size: 13px;">
