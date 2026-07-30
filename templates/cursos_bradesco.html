@@ -15,43 +15,34 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-mortarboard-fill text-primary"></i> Cursos Fundação Bradesco</h2>
-            <p class="text-muted">Acesse conteúdos voltados diretamente para tecnologia, informática e inovação.</p>
+            <p class="text-muted">Cursos oficiais da Escola Virtual Fundação Bradesco com link direto para cada inscrição.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
-                ("Fundamentos de Informática", "https://www.ev.org.br/cursos/informatica-basica"),
-                ("Excel Avançado: Gráficos e Dashboards", "https://www.ev.org.br/cursos/excel-2016-avancado"),
-                ("Introdução à Lógica de Programação", "https://www.ev.org.br/cursos/introducao-a-logica-de-programacao"),
-                ("Desenvolvimento Web com HTML e CSS", "https://www.ev.org.br/cursos/criando-paginas-para-web-com-html-e-css"),
-                ("Banco de Dados e SQL Básico", "https://www.ev.org.br/cursos/introducao-ao-sql"),
-                ("Segurança da Informação", "https://www.ev.org.br/cursos/seguranca-em-tecnologia-da-informacao"),
-                ("Gestão de Projetos com Metodologias Ágeis", "https://www.ev.org.br/cursos/fundamentos-de-gestao-de-projetos"),
-                ("Introdução à Inteligência Artificial", "https://www.ev.org.br/cursos/inteligencia-artificial-e-suas-aplicacoes"),
-                ("Python para Análise de Dados", "https://www.ev.org.br/cursos/linguagem-python-basico"),
-                ("Administração Financeira Básica", "https://www.ev.org.br/cursos/financas-pessoais"),
-                ("Comunicação Escrita no Ambiente Corporativo", "https://www.ev.org.br/cursos/comunicação-empresarial"),
-                ("Inglês Instrumental", "https://www.ev.org.br/cursos/ingles-instrumental"),
-                ("Atendimento e Técnicas de Vendas", "https://www.ev.org.br/cursos/tecnicas-de-vendas"),
-                ("Ferramentas de Nuvem (Cloud Computing)", "https://www.ev.org.br/cursos/computacao-em-nuvem"),
-                ("Power BI para Iniciantes", "https://www.ev.org.br/cursos/microsoft-power-bi"),
-                ("Gestão de Processos de Negócio", "https://www.ev.org.br/cursos/modelagem-de-processos"),
-                ("Arquitetura de Computadores", "https://www.ev.org.br/cursos/hardware-basico"),
-                ("Redes de Computadores Fundamentos", "https://www.ev.org.br/cursos/redes-de-computadores"),
-                ("Java Orientado a Objetos", "https://www.ev.org.br/cursos/orientacao-a-objetos-com-java"),
-                ("Inovação Tecnológica e Mercado", "https://www.ev.org.br/cursos/inovacao-e-empreendedorismo")
+                ("Crie um site simples usando HTML, CSS e JavaScript", "https://www.ev.org.br/cursos/crie-um-site-simples-usando-html-css-e-javascript"),
+                ("Linguagem de Programação Python", "https://www.ev.org.br/cursos/linguagem-de-programacao-python-basico"),
+                ("Excel na Prática", "https://www.ev.org.br/cursos/excel-na-pratica"),
+                ("Microsoft Excel 2016 - Básico", "https://www.ev.org.br/cursos/microsoft-excel-2016-basico"),
+                ("Organização Pessoal", "https://www.ev.org.br/cursos/organizacao-pessoal"),
+                ("Postura e Imagem Profissional", "https://www.ev.org.br/cursos/postura-e-imagem-profissional"),
+                ("Língua Portuguesa sem Complicações", "https://www.ev.org.br/cursos/lingua-portuguesa-sem-complicacoes"),
+                ("Word na Prática", "https://www.ev.org.br/cursos/word-na-pratica"),
+                ("Educação Financeira", "https://www.ev.org.br/cursos/educacao-financeira"),
+                ("Soluções de IA no GitHub", "https://www.ev.org.br/cursos/github"),
+                ("Análise de Dados no Power BI", "https://www.ev.org.br/cursos/analise-de-dados-no-power-bi")
             ] %}
             
             {% for nome, link in cursos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
                     <div>
-                        <span class="badge bg-info-subtle text-dark mb-2">Fundação Bradesco • Online</span>
+                        <span class="badge bg-info-subtle text-dark mb-2">Escola Virtual • Online</span>
                         <h5 class="fw-bold text-dark fs-6">{{ nome }}</h5>
-                        <p class="text-muted small mb-3">Carga horária: 20h a 40h • Certificado oficial.</p>
+                        <p class="text-muted small mb-3">Certificado oficial Fundação Bradesco • Gratuito.</p>
                     </div>
                     <a href="{{ link }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
-                        <i class="bi bi-box-arrow-up-right"></i> Acessar Curso Específico
+                        <i class="bi bi-box-arrow-up-right"></i> Ir Para o Curso Exato
                     </a>
                 </div>
             </div>
