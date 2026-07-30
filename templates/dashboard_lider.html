@@ -109,12 +109,12 @@
     <!-- Conteúdo Principal -->
     <div class="container my-4">
         
-        <!-- Saudação -->
-        <div class="alert alert-dark mb-4 p-4 rounded-3 text-white bg-dark">
-            <h4 class="fw-bold mb-1">
-                <i class="bi bi-hand-wave me-2"></i>Olá, <span style="color: #38bdf8;">{{ current_user.nome }}</span>!
+        <!-- Saudação com fundo branco/claro e textos escuros -->
+        <div class="card-custom mb-4 p-4 border" style="background-color: #ffffff; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);">
+            <h4 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-hand-wave me-2 text-primary"></i>Olá, <span style="color: #0f172a;">{{ current_user.nome }}</span>!
             </h4>
-            <p class="mb-0 text-white-50" style="font-size: 14px;">
+            <p class="mb-0 text-muted" style="font-size: 14px;">
                 Bem-vindo ao seu painel de liderança. Aqui você pode publicar avisos, acompanhar o histórico e realizar as chamadas dos cultos e eventos.
             </p>
         </div>
@@ -136,7 +136,6 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end">
-                    <!-- Ajuste a rota abaixo conforme o nome registrado no seu Blueprint/Flask -->
                     <a href="{{ url_for('leader.trilha') }}" class="btn btn-warning btn-custom w-100 text-dark fw-bold">
                         <i class="bi bi-arrow-right-circle me-1"></i> Acessar Trilha
                     </a>
@@ -247,7 +246,6 @@
                     </thead>
                     <tbody>
                         {% if ranking_membros %}
-                            <!-- Exibe inicialmente apenas os 10 primeiros -->
                             {% for membro, total_presencas in ranking_membros[:10] %}
                             <tr>
                                 <td class="ps-3 fw-bold">
@@ -270,7 +268,6 @@
                             </tr>
                             {% endfor %}
 
-                            <!-- O restante dos membros (do 11º em diante) fica colapsado -->
                             {% if ranking_membros|length > 10 %}
                                 <tbody class="collapse" id="rankingLiderCompleto">
                                     {% for membro, total_presencas in ranking_membros[10:] %}
@@ -300,7 +297,6 @@
                 </table>
             </div>
 
-            <!-- Botão Ver Mais / Recolher para o Líder -->
             {% if ranking_membros|length > 10 %}
             <div class="text-center mt-3">
                 <button class="btn btn-outline-dark btn-sm btn-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#rankingLiderCompleto" aria-expanded="false" aria-controls="rankingLiderCompleto" id="btnVerMaisLider">
@@ -330,7 +326,7 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script para ocultar o Toast automaticamente após alguns segundos -->
+    <!-- Script para ocultar o Toast automaticamente -->
     <script>
         setTimeout(function() {
             let toasts = document.querySelectorAll('.toast');
