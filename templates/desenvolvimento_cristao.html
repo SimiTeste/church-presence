@@ -15,43 +15,33 @@
         </a>
         <div class="mb-4">
             <h2 class="fw-bold text-dark"><i class="bi bi-book-fill text-success"></i> Desenvolvimento Cristão</h2>
-            <p class="text-muted">Aulas em vídeo, palestras e videoaulas práticas do YouTube e plataformas de estudo bíblico para cada módulo.</p>
+            <p class="text-muted">Aulas e ministrações selecionadas para edificação e estudo.</p>
         </div>
 
         <div class="row g-3">
             {% set cursos = [
-                ("Panorama do Antigo Testamento", "https://www.youtube.com/results?search_query=Panorama+do+Antigo+Testamento+curso+teologico"),
-                ("Panorama do Novo Testamento", "https://www.youtube.com/results?search_query=Panorama+do+Novo+Testamento+aulas"),
-                ("Teologia Sistemática Fundamental", "https://www.youtube.com/results?search_query=Teologia+Sistematica+curso+completo"),
-                ("Hermenêutica: A Arte de Interpretar a Bíblia", "https://www.youtube.com/results?search_query=curso+de+hermeneutica+biblica+gratis"),
-                ("Homilética: A Arte de Pregar a Palavra", "https://www.youtube.com/results?search_query=curso+de+homiletica+como+pregar"),
-                ("Liderança Cristã Servidora", "https://www.youtube.com/results?search_query=lideranca+crista+e+gestao+de-ministerios"),
-                ("Discipulado Eficaz na Igreja Local", "https://www.youtube.com/results?search_query=curso+de+discipulado+cristao"),
-                ("Fundamentos da Doutrina Cristã", "https://www.youtube.com/results?search_query=fundamentos+da-doutrina+crista+aulas"),
-                ("A Vida de Oração e Intimidade com Deus", "https://www.youtube.com/results?search_query=vida+de+oracao+e+intimidade+com+deus+mensagens"),
-                ("Evangelismo e Missões Urbanas", "https://www.youtube.com/results?search_query=como-fazer-evangelismo+pratico+treinamento"),
-                ("História da Igreja Cristã", "https://www.youtube.com/results?search_query=historia-da-igreja+crista+aulas+completas"),
-                ("Guerra Espiritual e Batalha na Fé", "https://www.youtube.com/results?search_query=estudo+biblico+guerra+espiritual"),
-                ("A Família sob a Ótica Bíblica", "https://www.youtube.com/results?search_query=familia+a-luz-da-biblia+curso"),
-                ("Gestão de Ministérios e EBD", "https://www.youtube.com/results?search_query=gestao-de-escola-biblica-dominical+ebd"),
-                ("Apologética: Defendendo a Fé Cristã", "https://www.youtube.com/results?search_query=curso-de-apologetica+crista"),
-                ("Os Dons Espirituais no Corpo de Cristo", "https://www.youtube.com/results?search_query=estudo+sobre+dons+espirituais"),
-                ("O Fruto do Espírito na Prática Diária", "https://www.youtube.com/results?search_query=fruto-do-espirito+estudo+expositivo"),
-                ("Finanças à Luz da Bíblia", "https://www.youtube.com/results?search_query=financas-a-luz-da-biblia+curso"),
-                ("Aconselhamento Pastoral Básico", "https://www.youtube.com/results?search_query=curso-de-aconselhamento-pastoral"),
-                ("Escatologia: O Estudo das Últimas Coisas", "https://www.youtube.com/results?search_query=escatologia-biblica+estudo+completo")
+                ("CONTROLE A LÍNGUA E TRANSFORME SUA VIDA - HERNANDES DIAS LOPES", "https://youtu.be/ix3vftN7uXo"),
+                ("Introdução - Curso de Teologia Básica", "https://youtu.be/ggvsYD8aRQg"),
+                ("COMO ANDAR NA PRESENÇA DE DEUS ? - PR. OSIEL GOMES", "https://youtu.be/p_02_VZIsd8"),
+                ("Homens, não mais meninos | Abba Pai Church", "https://youtu.be/YYK4rw0fzOE"),
+                ("PR NICK MORETTI - SEJA OUSADO EM DEUS", "https://youtu.be/VcBdEgHZ7AA"),
+                ("UM ESTILO DE VIDA COM O SENHOR! l CORTES - TÉO HAYASHI", "https://youtu.be/QAaqw3VI-WA"),
+                ("Fé não fingida | Documentário", "https://youtu.be/OZebYks7Y6I"),
+                ("PRIORIZE O ESPIRITUAL | Camila Barros", "https://youtu.be/8DtX--uEiEk"),
+                ("Deus vai te dar uma estratégia | Gabriela Lopes", "https://www.youtube.com/live/aSa617znc2s"),
+                ("PROPÓSITO VALE MAIS DO QUE IMPULSO - #DIEGOMENIN | SERMÃO", "https://youtu.be/vtf-fjL4J9Q")
             ] %}
             
             {% for nome, link in cursos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
                     <div>
-                        <span class="badge bg-success-subtle text-success mb-2"><i class="bi bi-youtube"></i> Trilha em Vídeo / Aulas</span>
+                        <span class="badge bg-success-subtle text-success mb-2"><i class="bi bi-youtube"></i> Vídeo / Ministração</span>
                         <h5 class="fw-bold text-dark fs-6">{{ nome }}</h5>
-                        <p class="text-muted small mb-3">Conteúdo prático com videoaulas e video-palestras.</p>
+                        <p class="text-muted small mb-3">Conteúdo prático com videoaula específica.</p>
                     </div>
                     <a href="{{ link }}" target="_blank" class="btn btn-outline-success btn-sm w-100">
-                        <i class="bi bi-play-circle-fill"></i> Assistir / Estudar Módulo
+                        <i class="bi bi-play-circle-fill"></i> Assistir Vídeo Exato
                     </a>
                 </div>
             </div>
