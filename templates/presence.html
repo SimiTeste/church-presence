@@ -111,7 +111,7 @@
             <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
                 <i class="bi bi-building me-2"></i>Ad Brás - Jardim Califórnia
             </a>
-            <div class="d-flex align-items: center;">
+            <div class="d-flex align-items-center">
                 <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary btn-sm btn-custom me-2">
                     <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
                 </a>
@@ -156,11 +156,28 @@
                     <label for="event_id" class="form-label fw-semibold" style="font-size: 14px;">Selecione o Culto / Evento</label>
                     <select class="form-select" id="event_id" name="event_id" onchange="this.form.submit()">
                         <option value="">-- Escolha um Culto --</option>
+                        
+                        <!-- Agrupamento inteligente: Apenas Líderes/Master veem histórico passado -->
+                        {% set displayed_past = [] %}
                         {% for event in events %}
-                            <option value="{{ event.id }}" {{ 'selected' if selected_event and selected_event.id == event.id else '' }}>
-                                {{ event.nome }} - {{ event.data.strftime('%d/%m/%Y') }}
-                            </option>
+                            {% if event.data >= hoje %}
+                                <option value="{{ event.id }}" {{ 'selected' if selected_event and selected_event.id == event.id else '' }}>
+                                    📅 {{ event.nome }} - {{ event.data.strftime('%d/%m/%Y') }} (Hoje/Futuro)
+                                </option>
+                            {% endif %}
                         {% endfor %}
+
+                        {% if current_user.tipo in ['MASTER', 'LIDER'] %}
+                            <optgroup label="📂 Histórico de Cultos Passados (Apenas Liderança)">
+                                {% for event in events %}
+                                    {% if event.data < hoje %}
+                                        <option value="{{ event.id }}" {{ 'selected' if selected_event and selected_event.id == event.id else '' }}>
+                                            🔒 {{ event.nome }} - {{ event.data.strftime('%d/%m/%Y') }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </optgroup>
+                        {% endif %}
                     </select>
                 </div>
 
@@ -182,6 +199,16 @@
             </form>
 
             {% if selected_event %}
+                <!-- Alerta visual caso seja culto passado -->
+                {% if selected_event.data < hoje %}
+                    <div class="alert alert-warning border mb-4 d-flex align-items-center" role="alert">
+                        <i class="bi bi-lock-fill fs-4 me-2"></i>
+                        <div>
+                            <strong>Modo de Consulta (Passado):</strong> Este culto ocorreu em {{ selected_event.data.strftime('%d/%m/%Y') }}. Os registros estão bloqueados contra alterações.
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div class="alert alert-light border mb-4 d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-1 fw-bold text-dark"><i class="bi bi-calendar-event me-2"></i>{{ selected_event.nome }}</h5>
@@ -220,17 +247,27 @@
                                     </td>
                                     <td class="text-center">
                                         {% set is_present = member.id in present_member_ids %}
-                                        <form action="{{ url_for('presence.toggle_presence', event_id=selected_event.id, member_id=member.id, departamento=departamento_selecionado) }}" method="POST" class="d-inline">
+                                        
+                                        <!-- Se for data passada, desativa os botões de ação -->
+                                        {% if selected_event.data < hoje %}
                                             {% if is_present %}
-                                                <button type="submit" class="btn btn-success btn-sm btn-custom px-3">
-                                                    <i class="bi bi-check-circle-fill me-1"></i> Presente
-                                                </button>
+                                                <span class="badge bg-success px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i> Presente (Registrado)</span>
                                             {% else %}
-                                                <button type="submit" class="btn btn-outline-danger btn-sm btn-custom px-3">
-                                                    <i class="bi bi-x-circle me-1"></i> Ausente
-                                                </button>
+                                                <span class="badge bg-secondary px-3 py-2"><i class="bi bi-x-circle me-1"></i> Ausente / Não Registrado</span>
                                             {% endif %}
-                                        </form>
+                                        {% else %}
+                                            <form action="{{ url_for('presence.toggle_presence', event_id=selected_event.id, member_id=member.id, departamento=departamento_selecionado) }}" method="POST" class="d-inline">
+                                                {% if is_present %}
+                                                    <button type="submit" class="btn btn-success btn-sm btn-custom px-3">
+                                                        <i class="bi bi-check-circle-fill me-1"></i> Presente
+                                                    </button>
+                                                {% else %}
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm btn-custom px-3">
+                                                        <i class="bi bi-x-circle me-1"></i> Ausente
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}

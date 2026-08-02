@@ -81,10 +81,7 @@ with app.app_context():
 
         if Event.query.count() == 0:
             eventos_iniciais = [
-                Event(nome="Culto de Domingo - Manhã", data=date.today()),
-                Event(nome="Culto de Domingo - Noite", data=date.today()),
-                Event(nome="Escola Bíblica Dominical (EBD)", data=date.today()),
-                Event(nome="Culto de Oração", data=date.today())
+                Event(nome="Escola Bíblica Dominical (EBD)", data=date.today())
             ]
             db.session.bulk_save_objects(eventos_iniciais)
 

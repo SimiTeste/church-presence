@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from datetime import datetime, timedelta, date
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from models import db
 from models.member import Member
@@ -12,7 +12,6 @@ def get_next_sunday():
     days_until_sunday = (6 - today.weekday()) % 7
     return today + timedelta(days=days_until_sunday)
 
-# ADICIONADO 'POST' AQUI PARA RECEBER O BOTÃO "SALVAR ALTERAÇÕES"
 @presence_bp.route("/presence", methods=["GET", "POST"])
 @login_required
 def index():
@@ -21,9 +20,18 @@ def index():
         flash("Acesso restrito à área administrativa e de liderança.", "warning")
         return redirect(url_for("dashboard.index"))
 
-    events = Event.query.order_by(Event.data.desc(), Event.id.desc()).all()
+    hoje = date.today()
     
-    # Gerencia parâmetros dependendo se o usuário está carregando a tela (GET) ou salvando (POST)
+    # REGRA: Apenas Master e Líder podem ver eventos passados na listagem. Usuários normais (se houver) só veem hoje/futuro.
+    # Como o acesso já exige MASTER ou LIDER acima, ajustamos para que líderes vejam tudo, 
+    # mas se quisermos restringir operadores comuns, a lógica abaixo separa:
+    all_events = Event.query.order_by(Event.data.desc(), Event.id.desc()).all()
+    
+    if user_tipo in ['MASTER', 'LIDER']:
+        events = all_events
+    else:
+        events = [e for e in all_events if e.data >= hoje]
+
     if request.method == "POST":
         selected_event_id = request.form.get("event_id", type=int)
         if not selected_event_id:
@@ -34,13 +42,13 @@ def index():
         departamento_selecionado = request.args.get("departamento", "").strip()
     
     if not selected_event_id and events:
-        selected_event_id = events[0].id
+        evento_hoje = next((e for e in events if e.data == hoje), None)
+        selected_event_id = evento_hoje.id if evento_hoje else events[0].id
 
     selected_event = None
     members = []
     present_member_ids = []
 
-    # Busca todos os departamentos únicos cadastrados para preencher o select do filtro
     departamentos_disponiveis = []
     if hasattr(Member, 'departamento'):
         deps = db.session.query(Member.departamento).filter(Member.departamento != None, Member.departamento != '').distinct().all()
@@ -49,6 +57,11 @@ def index():
     if selected_event_id:
         selected_event = Event.query.get_or_404(selected_event_id)
         
+        # Bloqueio de segurança caso tentem acessar via link direto um evento passado sem permissão
+        if selected_event.data < hoje and user_tipo not in ['MASTER', 'LIDER']:
+            flash("Você não tem permissão para visualizar cultos passados.", "danger")
+            return redirect(url_for("presence.index"))
+
         query = Member.query
         if hasattr(Member, 'ativo'):
             query = query.filter_by(ativo=True)
@@ -58,12 +71,14 @@ def index():
             
         members = query.order_by(Member.nome.asc()).all()
         
-        # --- LÓGICA DE SALVAMENTO CIRÚRGICA (Igual a do Líder) ---
+        # TRAVA DE SALVAMENTO PARA DIAS PASSADOS
         if request.method == "POST":
+            if selected_event.data < hoje:
+                flash("Não é permitido alterar registros de cultos passados.", "danger")
+                return redirect(url_for("presence.index", event_id=selected_event.id, departamento=departamento_selecionado))
+
             for member in members:
                 nome_campo = f'presente_{member.id}'
-                
-                # Se o checkbox veio marcado no formulário, é True. Senão, é False.
                 status = nome_campo in request.form
                 
                 att = Attendance.query.filter_by(event_id=selected_event.id, member_id=member.id).first()
@@ -84,9 +99,7 @@ def index():
             db.session.commit()
             flash("Chamada salva com sucesso!", "success")
             return redirect(url_for("presence.index", event_id=selected_event.id, departamento=departamento_selecionado))
-        # -----------------------------------------------------------
 
-        # Busca presenças atuais para exibir na tela (Sincronizado com a regra do Líder)
         attendances = Attendance.query.filter_by(event_id=selected_event_id).all()
         if hasattr(Attendance, 'presente'):
             present_member_ids = [a.member_id for a in attendances if getattr(a, 'presente', False)]
@@ -103,7 +116,8 @@ def index():
         present_member_ids=present_member_ids,
         next_sunday_str=next_sunday_str,
         departamento_selecionado=departamento_selecionado,
-        departamentos_disponiveis=departamentos_disponiveis
+        departamentos_disponiveis=departamentos_disponiveis,
+        hoje=hoje
     )
 
 @presence_bp.route("/events/quick_add_ebd", methods=["POST"])
@@ -136,6 +150,11 @@ def toggle_presence(event_id, member_id):
     if user_tipo not in ['MASTER', 'LIDER']:
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
+
+    event = Event.query.get_or_404(event_id)
+    if event.data < date.today():
+        flash("Não é permitido alterar presenças de cultos passados.", "danger")
+        return redirect(url_for("presence.index", event_id=event_id))
 
     departamento_selecionado = request.args.get("departamento") or request.form.get("departamento", "")
     
