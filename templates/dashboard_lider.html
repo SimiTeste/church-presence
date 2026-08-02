@@ -119,7 +119,7 @@
             </p>
         </div>
 
-        <!-- Card de Versículo do Dia (Posicionado acima da Trilha de Desenvolvimento) -->
+        <!-- Card de Versículo do Dia -->
         <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0 me-3 text-warning fs-3">
@@ -207,7 +207,7 @@
             <div class="col-md-7">
                 <div class="card-custom">
                     <h5 class="section-title"><i class="bi bi-check2-square me-2"></i>Realizar Chamada</h5>
-                    <p class="text-muted small mb-3">Selecione abaixo o evento para registrar a presença dos membros:</p>
+                    <p class="text-muted small mb-3">Selecione abaixo o evento para registrar ou consultar a presença dos membros:</p>
                     
                     {% if eventos %}
                         <div class="list-group" style="max-height: 420px; overflow-y: auto;">
@@ -215,11 +215,21 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-3 border bg-light mb-2 rounded-3">
                                 <div>
                                     <h6 class="fw-bold mb-1" style="font-size: 14px; color: #0f172a;">{{ evento.nome }}</h6>
-                                    <small class="text-muted"><i class="bi bi-calendar-event me-1"></i> Data: {{ evento.data.strftime('%d/%m/%Y') if evento.data else 'Não informada' }}</small>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-event me-1"></i> Data: {{ evento.data.strftime('%d/%m/%Y') if evento.data else 'Não informada' }}
+                                    </small>
                                 </div>
-                                <a href="{{ url_for('leader.chamada', event_id=evento.id) }}" class="btn btn-dark-custom btn-sm btn-custom">
-                                    <i class="bi bi-pencil-square me-1"></i> Fazer Chamada
-                                </a>
+                                
+                                <!-- BLOQUEIO DE EDIÇÃO PARA DIAS PASSADOS -->
+                                {% if evento.data < hoje %}
+                                    <span class="badge bg-secondary px-3 py-2">
+                                        <i class="bi bi-lock-fill me-1"></i> Encerrado (Passado)
+                                    </span>
+                                {% else %}
+                                    <a href="{{ url_for('leader.chamada', event_id=evento.id) }}" class="btn btn-dark-custom btn-sm btn-custom">
+                                        <i class="bi bi-pencil-square me-1"></i> Fazer Chamada
+                                    </a>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
