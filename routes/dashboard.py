@@ -32,7 +32,52 @@ def index():
     except Exception:
         avisos = []
 
-    user_tipo = getattr(current_user, 'tipo', None)
+    user_tipo = str(getattr(current_user, 'tipo', 'USER')).upper()
+
+    # Função auxiliar para gerar o ranking unificado
+    def gerar_ranking_unificado(focar_member_id=None):
+        total_ebds_geral = Event.query.count() or 0
+        membros_ativos = Member.query.filter_by(ativo=True).all()
+        lista_ranking = []
+        
+        for m in membros_ativos:
+            p_count = Attendance.query.filter_by(member_id=m.id, presente=True).count()
+            porcentagem = round((p_count / total_ebds_geral) * 100, 1) if total_ebds_geral > 0 else 0
+            
+            lista_ranking.append({
+                "member_id": m.id,
+                "nome": m.nome,
+                "departamento": m.departamento if m.departamento else "-",
+                "total": p_count,
+                "porcentagem": porcentagem
+            })
+
+        lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["member_id"]))
+
+        ranking_completo = []
+        posicao_usuario = "-"
+        
+        for index, r in enumerate(lista_ranking, start=1):
+            ranking_completo.append({
+                "posicao": index,
+                "nome": r["nome"],
+                "departamento": r["departamento"],
+                "total": r["total"],
+                "porcentagem": f"{r['porcentagem']}%"
+            })
+            if focar_member_id and r["member_id"] == focar_member_id:
+                posicao_usuario = index
+
+        return ranking_completo, posicao_usuario
+
+    # Identifica o membro vinculado (se houver) para líderes e usuários comuns
+    membro_vinculado = None
+    if hasattr(current_user, 'cpf') and current_user.cpf:
+        membro_vinculado = Member.query.filter_by(cpf=current_user.cpf).first()
+    if not membro_vinculado and hasattr(current_user, 'nome') and current_user.nome:
+        membro_vinculado = Member.query.filter_by(nome=current_user.nome).first()
+    
+    real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', getattr(current_user, 'id', None))
 
     # 1. 👑 Se for MASTER
     if user_tipo == 'MASTER':
@@ -58,53 +103,21 @@ def index():
         except Exception:
             todos_avisos = []
 
+        ranking_completo, posicao_usuario = gerar_ranking_unificado(real_member_id)
+
         return render_template(
             "dashboard.html", 
             total_membros=total_membros, 
             total_ebds=total_ebds,
             media_presenca=media_presenca,
             relatorio_rapido=relatorio_rapido,
-            avisos=todos_avisos
+            avisos=todos_avisos,
+            ranking_completo=ranking_completo,
+            posicao=posicao_usuario,
+            frase_motivacional=frase_motivacional
         )
 
-    # Função auxiliar para gerar o ranking unificado (~50 membros ativos)
-    def gerar_ranking_unificado(focar_member_id=None):
-        total_ebds_geral = Event.query.count() or 0
-        membros_ativos = Member.query.filter_by(ativo=True).all()
-        lista_ranking = []
-        
-        for m in membros_ativos:
-            p_count = Attendance.query.filter_by(member_id=m.id, presente=True).count()
-            porcentagem = round((p_count / total_ebds_geral) * 100, 1) if total_ebds_geral > 0 else 0
-            
-            lista_ranking.append({
-                "member_id": m.id,
-                "nome": m.nome,
-                "departamento": m.departamento if m.departamento else "-",
-                "total": p_count,
-                "porcentagem": porcentagem
-            })
-
-        # Ordenação idêntica em todos os painéis: 1º Presenças (desc), 2º Porcentagem (desc), 3º ID (Ordem de Cadastro)
-        lista_ranking.sort(key=lambda x: (-x["total"], -x["porcentagem"], x["member_id"]))
-
-        ranking_completo = []
-        posicao_usuario = "-"
-        
-        for index, r in enumerate(lista_ranking, start=1):
-            ranking_completo.append({
-                "posicao": index,
-                "nome": r["nome"],
-                "departamento": r["departamento"],
-                "total": r["total"],
-                "porcentagem": f"{r['porcentagem']}%"
-            })
-            if focar_member_id and r["member_id"] == focar_member_id:
-                posicao_usuario = index
-
-        return ranking_completo, posicao_usuario
-
-    # 2. 🛡️ Se for LÍDER (Agora integrado com o mesmo ranking e métricas unificadas)
+    # 2. 🛡️ Se for LÍDER
     if user_tipo == 'LIDER':
         total_membros = Member.query.filter_by(ativo=True).count()
         total_ebds = Event.query.count()
@@ -123,14 +136,6 @@ def index():
                 "presentes": qtd_presentes
             })
 
-        # Identifica o membro do líder se houver vínculo para destacar no ranking dele também
-        membro_vinculado = None
-        if hasattr(current_user, 'cpf') and current_user.cpf:
-            membro_vinculado = Member.query.filter_by(cpf=current_user.cpf).first()
-        if not membro_vinculado:
-            membro_vinculado = Member.query.filter_by(nome=current_user.nome).first()
-        real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', None)
-
         ranking_completo, posicao_usuario = gerar_ranking_unificado(real_member_id)
 
         return render_template(
@@ -141,19 +146,11 @@ def index():
             relatorio_rapido=relatorio_rapido,
             avisos=avisos,
             ranking_completo=ranking_completo,
-            posicao=posicao_usuario
+            posicao=posicao_usuario,
+            frase_motivacional=frase_motivacional
         )
 
     # 3. 👤 Se for usuário COMUM (USER)
-    membro_vinculado = None
-    if hasattr(current_user, 'cpf') and current_user.cpf:
-        membro_vinculado = Member.query.filter_by(cpf=current_user.cpf).first()
-        
-    if not membro_vinculado:
-        membro_vinculado = Member.query.filter_by(nome=current_user.nome).first()
-        
-    real_member_id = membro_vinculado.id if membro_vinculado else getattr(current_user, 'member_id', current_user.id)
-    
     presencas_usuario = Attendance.query.filter_by(member_id=real_member_id, presente=True).join(Event).order_by(Event.data.desc()).all()
     
     dias_comparecidos = []
@@ -186,8 +183,8 @@ def index():
 @dashboard_bp.route("/admin/avisos/novo", methods=["POST"])
 @login_required
 def criar_aviso():
-    user_tipo = getattr(current_user, 'tipo', None)
-    if user_tipo != 'MASTER' and user_tipo != 'LIDER':
+    user_tipo = str(getattr(current_user, 'tipo', 'USER')).upper()
+    if user_tipo not in ['MASTER', 'LIDER']:
         return abort(403)
     
     titulo = request.form.get("titulo")
@@ -211,8 +208,8 @@ def criar_aviso():
 @dashboard_bp.route("/admin/avisos/excluir/<id>", methods=["POST"])
 @login_required
 def excluir_aviso(id):
-    user_tipo = getattr(current_user, 'tipo', None)
-    if user_tipo != 'MASTER' and user_tipo != 'LIDER':
+    user_tipo = str(getattr(current_user, 'tipo', 'USER')).upper()
+    if user_tipo not in ['MASTER', 'LIDER']:
         return abort(403)
         
     try:
