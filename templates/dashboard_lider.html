@@ -277,24 +277,23 @@
                             {% endfor %}
 
                             {% if ranking_membros|length > 10 %}
-                                <tbody class="collapse" id="rankingLiderCompleto">
-                                    {% for membro, total_presencas in ranking_membros[10:] %}
-                                    <tr>
-                                        <td class="ps-3 fw-bold">{{ loop.index + 10 }}º</td>
-                                        <td class="fw-semibold text-dark">{{ membro.nome }}</td>
-                                        <td class="text-muted">
-                                            {% if membro.departamento %}
-                                                <span class="badge bg-light text-dark border">{{ membro.departamento }}</span>
-                                            {% else %}
-                                                <span class="text-muted small">Geral</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-success px-3 py-2">{{ total_presencas }} presença(s)</span>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
+                                <!-- Bloco colapsável contendo o restante do ranking dentro do mesmo tbody -->
+                                {% for membro, total_presencas in ranking_membros[10:] %}
+                                <tr class="collapse" id="rankingLiderCompleto">
+                                    <td class="ps-3 fw-bold">{{ loop.index0 + 11 }}º</td>
+                                    <td class="fw-semibold text-dark">{{ membro.nome }}</td>
+                                    <td class="text-muted">
+                                        {% if membro.departamento %}
+                                            <span class="badge bg-light text-dark border">{{ membro.departamento }}</span>
+                                        {% else %}
+                                            <span class="text-muted small">Geral</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success px-3 py-2">{{ total_presencas }} presença(s)</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             {% endif %}
                         {% else %}
                             <tr>
@@ -315,13 +314,16 @@
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     const btn = document.getElementById('btnVerMaisLider');
-                    const collapseElement = document.getElementById('rankingLiderCompleto');
-                    if (btn && collapseElement) {
-                        collapseElement.addEventListener('show.bs.collapse', function () {
-                            btn.innerHTML = '<i class="bi bi-chevron-up me-1"></i> Recolher ranking';
-                        });
-                        collapseElement.addEventListener('hide.bs.collapse', function () {
-                            btn.innerHTML = '<i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_membros|length }} membros)';
+                    // Como temos múltiplas linhas colapsadas, checamos o evento na primeira ou no botão
+                    if (btn) {
+                        let isExpanded = false;
+                        btn.addEventListener('click', function () {
+                            isExpanded = !isExpanded;
+                            if (isExpanded) {
+                                btn.innerHTML = '<i class="bi bi-chevron-up me-1"></i> Recolher ranking';
+                            } else {
+                                btn.innerHTML = '<i class="bi bi-chevron-down me-1"></i> Ver ranking completo ({{ ranking_membros|length }} membros)';
+                            }
                         });
                     }
                 });
