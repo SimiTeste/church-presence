@@ -15,8 +15,8 @@ def get_next_sunday():
 @presence_bp.route("/presence", methods=["GET", "POST"])
 @login_required
 def index():
-    user_tipo = getattr(current_user, 'tipo', 'USER')
-    # Apenas MASTER e LIDER podem acessar a página de presença
+    user_tipo = str(getattr(current_user, 'tipo', 'USER')).upper()
+    # Apenas MASTER e LIDER podem acessar a página de presença (agora tolerante a maiúsculas/minúsculas)
     if user_tipo not in ['MASTER', 'LIDER']:
         flash("Acesso restrito à liderança.", "warning")
         return redirect(url_for("dashboard.index"))
@@ -61,7 +61,6 @@ def index():
             
         members = query.order_by(Member.nome.asc()).all()
         
-        # TRAVA DE SALVAMENTO REMOVIDA: Usuário solicitou liberar edições em dias passados.
         if request.method == "POST":
             for member in members:
                 nome_campo = f'presente_{member.id}'
@@ -109,7 +108,7 @@ def index():
 @presence_bp.route("/events/quick_add_ebd", methods=["POST"])
 @login_required
 def quick_add_ebd():
-    user_tipo = getattr(current_user, 'tipo', 'USER')
+    user_tipo = str(getattr(current_user, 'tipo', 'USER')).upper()
     if user_tipo not in ['MASTER', 'LIDER']:
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
@@ -132,13 +131,12 @@ def quick_add_ebd():
 @presence_bp.route("/presence/toggle/<int:event_id>/<int:member_id>", methods=["POST"])
 @login_required
 def toggle_presence(event_id, member_id):
-    user_tipo = getattr(current_user, 'tipo', 'USER')
+    user_tipo = str(getattr(current_user, 'tipo', 'USER')).upper()
     if user_tipo not in ['MASTER', 'LIDER']:
         flash("Acesso negado.", "danger")
         return redirect(url_for("presence.index"))
 
     event = Event.query.get_or_404(event_id)
-    # TRAVA REMOVIDA: Permitir alteração rápida em botões de dias passados também.
 
     departamento_selecionado = request.args.get("departamento") or request.form.get("departamento", "")
     
