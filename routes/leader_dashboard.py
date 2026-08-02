@@ -19,7 +19,7 @@ def dashboard():
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
     eventos = Event.query.all()
     
-    # Total de EBDs cadastradas no sistema (mesma lógica usada no relatorio do Master)
+    # Total de EBDs cadastradas no sistema
     total_ebds = Event.query.count() or 0
     
     # Busca todos os membros ativos
@@ -27,7 +27,6 @@ def dashboard():
     
     ranking_calculado = []
     for member in members:
-        # Conta exatamente igual ao relatório do master (apenas onde presente=True)
         presencas = Attendance.query.filter_by(member_id=member.id, presente=True).count()
         porcentagem = round((presencas / total_ebds) * 100, 1) if total_ebds > 0 else 0
         
@@ -37,10 +36,10 @@ def dashboard():
             "porcentagem": porcentagem
         })
     
-    # Ordena por presenças, porcentagem e desempata pelo ID do membro (Ordem de cadastro)
+    # Ordena por presenças, porcentagem e desempata pelo ID do membro
     ranking_calculado.sort(key=lambda x: (-x["presencas"], -x["porcentagem"], x["member"].id))
     
-    # Formata para o template do líder esperar (passando tuplas no formato [ (Member, total_presencas), ... ])
+    # Formata para o template do líder esperar [ (Member, total_presencas), ... ]
     ranking_membros = [(item["member"], item["presencas"]) for item in ranking_calculado]
 
     # === BUSCA DO VERSÍCULO DO DIA ===
@@ -148,8 +147,6 @@ def chamada(event_id):
         
     presencas_atuais = {att.member_id: att.presente for att in evento.attendances}
     
-    # === CONTAGEM CORRIGIDA PARA O FILTRO ===
-    # Conta apenas os presentes que pertencem aos membros listados na tela (respeitando o filtro)
     total_presentes_filtrados = sum(1 for m in membros if presencas_atuais.get(m.id, False))
     
     return render_template(
