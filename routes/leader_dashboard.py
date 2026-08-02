@@ -1,10 +1,10 @@
+from datetime import date
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db
 from models.notice import Notice
 from models.member import Member
 from models.attendance import Event, Attendance
-from sqlalchemy import func
 import requests  # Importado para buscar o versículo via API externa
 
 leader_bp = Blueprint('leader', __name__)
@@ -17,8 +17,15 @@ def dashboard():
         return redirect(url_for('dashboard.index'))
         
     avisos = Notice.query.order_by(Notice.data_criacao.desc()).all()
-    eventos = Event.query.all()
     
+    hoje = date.today()
+    # Busca o evento do dia de hoje, se houver, senão pega o mais próximo futuro ou o último cadastrado
+    evento_hoje = Event.query.filter_by(data=hoje).first()
+    if not evento_hoje:
+        evento_hoje = Event.query.filter(Event.data >= hoje).order_by(Event.data.asc()).first()
+    if not evento_hoje:
+        evento_hoje = Event.query.order_by(Event.data.desc()).first()
+
     # Total de EBDs cadastradas no sistema
     total_ebds = Event.query.count() or 0
     
@@ -59,11 +66,21 @@ def dashboard():
     return render_template(
         'dashboard_lider.html', 
         avisos=avisos, 
-        eventos=eventos, 
+        evento_hoje=evento_hoje,
         ranking_membros=ranking_membros,
         versiculo_texto=versiculo_texto,
         versiculo_referencia=versiculo_referencia
     )
+
+@leader_bp.route('/leader/historico-chamadas')
+@login_required
+def historico_chamadas():
+    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+        flash('Acesso negado. Área restrita.', 'danger')
+        return redirect(url_for('dashboard.index'))
+        
+    eventos = Event.query.order_by(Event.data.desc()).all()
+    return render_template('historico_chamadas.html', eventos=eventos)
 
 @leader_bp.route('/leader/trilha')
 @login_required
@@ -121,6 +138,11 @@ def chamada(event_id):
     if request.method == 'POST':
         departamento_filtro = request.form.get('departamento_atual', '')
 
+    # TRAVA DE SALVAMENTO PARA LÍDERES: Líderes apenas visualizam
+    if request.method == 'POST' and current_user.tipo == 'LIDER':
+        flash('Acesso restrito: Líderes possuem apenas permissão de visualização.', 'warning')
+        return redirect(url_for('leader.chamada', event_id=evento.id, departamento=departamento_filtro))
+
     query = Member.query.filter_by(ativo=True)
     if departamento_filtro:
         query = query.filter_by(departamento=departamento_filtro)
@@ -129,7 +151,8 @@ def chamada(event_id):
     departamentos = db.session.query(Member.departamento).filter(Member.departamento != '').distinct().all()
     departamentos = [d[0] for d in departamentos if d[0]]
     
-    if request.method == 'POST':
+    # Apenas MASTER pode salvar alterações
+    if request.method == 'POST' and current_user.tipo == 'MASTER':
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
             status = nome_campo in request.form

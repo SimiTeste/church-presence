@@ -119,7 +119,7 @@
             </p>
         </div>
 
-        <!-- Card de Versículo do Dia (Posicionado acima da Trilha de Desenvolvimento) -->
+        <!-- Card de Versículo do Dia -->
         <div class="card-custom mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0 me-3 text-warning fs-3">
@@ -203,29 +203,37 @@
                 </div>
             </div>
 
-            <!-- Coluna Direita: Realizar Chamada por Evento -->
+            <!-- Coluna Direita: Realizar Chamada (Evento do Dia + Atalho para Histórico Completo) -->
             <div class="col-md-7">
                 <div class="card-custom">
-                    <h5 class="section-title"><i class="bi bi-check2-square me-2"></i>Realizar Chamada</h5>
-                    <p class="text-muted small mb-3">Selecione abaixo o evento para registrar a presença dos membros:</p>
+                    <h5 class="section-title"><i class="bi bi-check2-square me-2"></i>Chamada e Frequência</h5>
+                    <p class="text-muted small mb-3">Gerencie a chamada do encontro de hoje ou acesse o histórico completo de aulas:</p>
                     
-                    {% if eventos %}
-                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
-                            {% for evento in eventos %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-3 border bg-light mb-2 rounded-3">
+                    {% if evento_hoje %}
+                        <div class="p-3 mb-3 border rounded-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="fw-bold mb-1" style="font-size: 14px; color: #0f172a;">{{ evento.nome }}</h6>
-                                    <small class="text-muted"><i class="bi bi-calendar-event me-1"></i> Data: {{ evento.data.strftime('%d/%m/%Y') if evento.data else 'Não informada' }}</small>
+                                    <span class="badge bg-primary mb-1">Evento em Destaque</span>
+                                    <h6 class="fw-bold mb-1 text-dark" style="font-size: 15px;">{{ evento_hoje.nome }}</h6>
+                                    <small class="text-muted"><i class="bi bi-calendar-event me-1"></i> Data: {{ evento_hoje.data.strftime('%d/%m/%Y') if evento_hoje.data else 'Não informada' }}</small>
                                 </div>
-                                <a href="{{ url_for('leader.chamada', event_id=evento.id) }}" class="btn btn-dark-custom btn-sm btn-custom">
+                                <a href="{{ url_for('leader.chamada', event_id=evento_hoje.id) }}" class="btn btn-dark-custom btn-sm btn-custom">
                                     <i class="bi bi-pencil-square me-1"></i> Fazer Chamada
                                 </a>
                             </div>
-                            {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted mb-0 small">Nenhum evento cadastrado no momento.</p>
+                        <div class="alert alert-warning py-2 small" role="alert">
+                            Nenhum evento em destaque para hoje.
+                        </div>
                     {% endif %}
+
+                    <!-- Botão para acessar o Histórico de Aulas completo -->
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('leader.historico_chamadas') }}" class="btn btn-outline-dark btn-sm btn-custom w-100">
+                            <i class="bi bi-journal-text me-1"></i> Ver mais (Histórico de Aulas e Eventos)
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
