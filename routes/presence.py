@@ -61,12 +61,8 @@ def index():
             
         members = query.order_by(Member.nome.asc()).all()
         
-        # TRAVA DE SALVAMENTO PARA DIAS PASSADOS (Ninguém pode alterar passado)
+        # TRAVA DE SALVAMENTO REMOVIDA: Usuário solicitou liberar edições em dias passados.
         if request.method == "POST":
-            if selected_event.data < hoje:
-                flash("Não é permitido alterar registros de cultos passados.", "danger")
-                return redirect(url_for("presence.index", event_id=selected_event.id, departamento=departamento_selecionado))
-
             for member in members:
                 nome_campo = f'presente_{member.id}'
                 status = nome_campo in request.form
@@ -142,9 +138,7 @@ def toggle_presence(event_id, member_id):
         return redirect(url_for("presence.index"))
 
     event = Event.query.get_or_404(event_id)
-    if event.data < date.today():
-        flash("Não é permitido alterar presenças de cultos passados.", "danger")
-        return redirect(url_for("presence.index", event_id=event_id))
+    # TRAVA REMOVIDA: Permitir alteração rápida em botões de dias passados também.
 
     departamento_selecionado = request.args.get("departamento") or request.form.get("departamento", "")
     
