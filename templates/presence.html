@@ -111,7 +111,7 @@
             <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
                 <i class="bi bi-building me-2"></i>Ad Brás - Jardim Califórnia
             </a>
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center;">
                 <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary btn-sm btn-custom me-2">
                     <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
                 </a>
@@ -157,8 +157,7 @@
                     <select class="form-select" id="event_id" name="event_id" onchange="this.form.submit()">
                         <option value="">-- Escolha um Culto --</option>
                         
-                        <!-- Agrupamento inteligente: Apenas Líderes/Master veem histórico passado -->
-                        {% set displayed_past = [] %}
+                        <!-- Eventos de Hoje/Futuro -->
                         {% for event in events %}
                             {% if event.data >= hoje %}
                                 <option value="{{ event.id }}" {{ 'selected' if selected_event and selected_event.id == event.id else '' }}>
@@ -167,8 +166,9 @@
                             {% endif %}
                         {% endfor %}
 
+                        <!-- Histórico Passado visível para LIDER e MASTER -->
                         {% if current_user.tipo in ['MASTER', 'LIDER'] %}
-                            <optgroup label="📂 Histórico de Cultos Passados (Apenas Liderança)">
+                            <optgroup label="📂 Histórico de Cultos Passados (Liderança)">
                                 {% for event in events %}
                                     {% if event.data < hoje %}
                                         <option value="{{ event.id }}" {{ 'selected' if selected_event and selected_event.id == event.id else '' }}>

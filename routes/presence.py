@@ -16,21 +16,16 @@ def get_next_sunday():
 @login_required
 def index():
     user_tipo = getattr(current_user, 'tipo', 'USER')
+    # Apenas MASTER e LIDER podem acessar a página de presença
     if user_tipo not in ['MASTER', 'LIDER']:
-        flash("Acesso restrito à área administrativa e de liderança.", "warning")
+        flash("Acesso restrito à liderança.", "warning")
         return redirect(url_for("dashboard.index"))
 
     hoje = date.today()
-    
-    # REGRA: Apenas Master e Líder podem ver eventos passados na listagem. Usuários normais (se houver) só veem hoje/futuro.
-    # Como o acesso já exige MASTER ou LIDER acima, ajustamos para que líderes vejam tudo, 
-    # mas se quisermos restringir operadores comuns, a lógica abaixo separa:
     all_events = Event.query.order_by(Event.data.desc(), Event.id.desc()).all()
     
-    if user_tipo in ['MASTER', 'LIDER']:
-        events = all_events
-    else:
-        events = [e for e in all_events if e.data >= hoje]
+    # Líderes e Masters visualizam todos os eventos (incluindo o histórico)
+    events = all_events
 
     if request.method == "POST":
         selected_event_id = request.form.get("event_id", type=int)
@@ -56,11 +51,6 @@ def index():
 
     if selected_event_id:
         selected_event = Event.query.get_or_404(selected_event_id)
-        
-        # Bloqueio de segurança caso tentem acessar via link direto um evento passado sem permissão
-        if selected_event.data < hoje and user_tipo not in ['MASTER', 'LIDER']:
-            flash("Você não tem permissão para visualizar cultos passados.", "danger")
-            return redirect(url_for("presence.index"))
 
         query = Member.query
         if hasattr(Member, 'ativo'):
@@ -71,7 +61,7 @@ def index():
             
         members = query.order_by(Member.nome.asc()).all()
         
-        # TRAVA DE SALVAMENTO PARA DIAS PASSADOS
+        # TRAVA DE SALVAMENTO PARA DIAS PASSADOS (Ninguém pode alterar passado)
         if request.method == "POST":
             if selected_event.data < hoje:
                 flash("Não é permitido alterar registros de cultos passados.", "danger")
