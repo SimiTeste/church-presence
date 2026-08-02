@@ -12,7 +12,8 @@ leader_bp = Blueprint('leader', __name__)
 @leader_bp.route('/leader/dashboard')
 @login_required
 def dashboard():
-    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+    user_tipo = str(getattr(current_user, 'tipo', '')).upper()
+    if not current_user.is_authenticated or user_tipo not in ["MASTER", "LIDER"]:
         flash('Acesso negado. Área restrita.', 'danger')
         return redirect(url_for('dashboard.index'))
         
@@ -75,7 +76,8 @@ def dashboard():
 @leader_bp.route('/leader/historico-chamadas')
 @login_required
 def historico_chamadas():
-    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+    user_tipo = str(getattr(current_user, 'tipo', '')).upper()
+    if not current_user.is_authenticated or user_tipo not in ["MASTER", "LIDER"]:
         flash('Acesso negado. Área restrita.', 'danger')
         return redirect(url_for('dashboard.index'))
         
@@ -85,7 +87,8 @@ def historico_chamadas():
 @leader_bp.route('/leader/trilha')
 @login_required
 def trilha():
-    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+    user_tipo = str(getattr(current_user, 'tipo', '')).upper()
+    if not current_user.is_authenticated or user_tipo not in ["MASTER", "LIDER"]:
         flash('Acesso negado. Área restrita.', 'danger')
         return redirect(url_for('dashboard.index'))
         
@@ -94,7 +97,8 @@ def trilha():
 @leader_bp.route('/leader/avisos/novo', methods=['POST'])
 @login_required
 def criar_aviso():
-    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER"]:
+    user_tipo = str(getattr(current_user, 'tipo', '')).upper()
+    if not current_user.is_authenticated or user_tipo not in ["MASTER", "LIDER"]:
         flash('Acesso negado.', 'danger')
         return redirect(url_for('auth.login'))
         
@@ -119,7 +123,8 @@ def criar_aviso():
 @leader_bp.route('/leader/chamada/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def chamada(event_id):
-    if not current_user.is_authenticated or current_user.tipo not in ["MASTER", "LIDER", "COMUM", "USUARIO"]:
+    user_tipo = str(getattr(current_user, 'tipo', '')).upper()
+    if not current_user.is_authenticated or user_tipo not in ["MASTER", "LIDER", "COMUM", "USUARIO"]:
         flash('Acesso negado.', 'danger')
         return redirect(url_for('auth.login'))
         
@@ -138,11 +143,6 @@ def chamada(event_id):
     if request.method == 'POST':
         departamento_filtro = request.form.get('departamento_atual', '')
 
-    # TRAVA DE SALVAMENTO PARA LÍDERES: Líderes apenas visualizam
-    if request.method == 'POST' and current_user.tipo == 'LIDER':
-        flash('Acesso restrito: Líderes possuem apenas permissão de visualização.', 'warning')
-        return redirect(url_for('leader.chamada', event_id=evento.id, departamento=departamento_filtro))
-
     query = Member.query.filter_by(ativo=True)
     if departamento_filtro:
         query = query.filter_by(departamento=departamento_filtro)
@@ -151,8 +151,8 @@ def chamada(event_id):
     departamentos = db.session.query(Member.departamento).filter(Member.departamento != '').distinct().all()
     departamentos = [d[0] for d in departamentos if d[0]]
     
-    # Apenas MASTER pode salvar alterações
-    if request.method == 'POST' and current_user.tipo == 'MASTER':
+    # Permitir que tanto MASTER quanto LIDER salvem alterações na chamada
+    if request.method == 'POST' and user_tipo in ['MASTER', 'LIDER']:
         for membro in membros:
             nome_campo = f'presente_{membro.id}'
             status = nome_campo in request.form
